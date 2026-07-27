@@ -8,6 +8,10 @@
 
 import pytest
 
+from inspect_ai import Task, eval as inspect_eval
+from inspect_ai.dataset import Sample
+from inspect_ai.scorer import Score, scorer
+
 from gim.metrics import raw_mean, gim_per_label, gim_per_modality, DEFAULT_MIN_SAMPLES
 from tests.conftest import make_sample_score
 
@@ -51,6 +55,39 @@ class TestRawMean:
         compute = raw_mean()
         scores = [make_sample_score(0.75)]
         assert compute(scores) == 0.75
+
+    def test_nan_sample_excluded_by_inspect(self, tmp_path):
+        """Inspect excludes NaN samples from metrics and counts them unscored."""
+
+        @scorer(metrics=[raw_mean()])
+        def mixed_scores():
+            async def score(state, target):
+                value = float("nan") if state.sample_id == "missing" else 0.6
+                return Score(value=value)
+
+            return score
+
+        task = Task(
+            dataset=[
+                Sample(id="missing", input="missing"),
+                Sample(id="observed", input="observed"),
+            ],
+            solver=[],
+            scorer=mixed_scores(),
+        )
+
+        log = inspect_eval(
+            task,
+            model="mockllm/model",
+            display="none",
+            log_dir=str(tmp_path),
+        )[0]
+
+        assert log.results is not None
+        result = log.results.scores[0]
+        assert result.metrics["raw_mean"].value == 0.6
+        assert result.scored_samples == 1
+        assert result.unscored_samples == 1
 
 
 class TestGimPerLabel:

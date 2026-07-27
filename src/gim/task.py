@@ -77,20 +77,21 @@ def _classify_error(exc: Exception) -> str:
 
 
 @solver
-def _generate_or_zero(
+def _generate_or_missing(
     timeout: float | None = 300, skip_documents: bool = False
 ) -> Solver:
     """generate() wrapper that converts generation failures into empty completions.
 
     Inspect AI only calls the scorer when the solver returns without error
-    (run.py: ``if error is None: ... score_result = await scorer(...)``).n    When generation raises, Inspect marks the sample as errored and skips
+    (run.py: ``if error is None: ... score_result = await scorer(...)``).
+    When generation raises, Inspect marks the sample as errored and skips
     scoring entirely, excluding it from the metric denominator.
 
     This wrapper catches any exception from generate(), logs it with error
     classification, and returns the TaskState with its default empty
     ModelOutput so the scorer IS called. The scorer then detects the empty
-    completion and returns Score(value=0.0), counting the failure in the
-    denominator.
+    completion and returns a NaN score, which aggregate metrics and epoch
+    reducers treat as missing.
 
     Error classification and metadata are stored on the state so downstream
     metrics can aggregate failure types.
@@ -119,7 +120,7 @@ def _generate_or_zero(
         if skip_documents and _has_documents(state):
             logger.warning(
                 "Sample %s contains document content (PDF) that the model "
-                "cannot process \u2014 scoring as 0.0",
+                "cannot process \u2014 treating as missing",
                 state.sample_id,
             )
             state.metadata["solved"] = False
@@ -135,7 +136,7 @@ def _generate_or_zero(
             return state
         except asyncio.TimeoutError:
             logger.warning(
-                "Generation timed out for sample %s after %ss (counted as 0.0)",
+                "Generation timed out for sample %s after %ss (treated as missing)",
                 state.sample_id,
                 timeout,
             )
@@ -145,7 +146,7 @@ def _generate_or_zero(
         except Exception as exc:
             error_type = _classify_error(exc)
             logger.warning(
-                "Generation failed for sample %s [%s] (counted as 0.0): %s",
+                "Generation failed for sample %s [%s] (treated as missing): %s",
                 state.sample_id,
                 error_type,
                 exc,
@@ -215,7 +216,7 @@ def v3(
             require_attachment=require_attachment,
             split=split,
         ),
-        solver=_generate_or_zero(
+        solver=_generate_or_missing(
             timeout=generation_timeout, skip_documents=skip_documents
         ),
         scorer=None if no_score else gim_scorer(grader_model=grader_model),

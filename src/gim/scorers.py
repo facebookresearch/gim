@@ -18,8 +18,8 @@ Two scoring strategies, selected per-sample based on available metadata:
 When a sample has rubrics, the rubric score is used. Otherwise the exact-answer
 score is used. This mirrors the priority logic in the TBR implementation.
 
-Failed generations (empty completion) are scored as 0.0 so they count
-toward the denominator and do not inflate reported accuracy.
+Failed generations (empty completion) are recorded as NaN so aggregate metrics
+and epoch reducers treat them as missing observations.
 
 All judge calls are retried up to 15 times with exponential backoff via stamina.
 
@@ -415,8 +415,8 @@ def gim_scorer(grader_model: str | None = None) -> Scorer:
     """GIM composite scorer.
 
     Routes each sample to the appropriate judging strategy:
-    - If generation failed (empty completion), returns 0.0 immediately
-      with diagnostic metadata so the failure counts toward the denominator.
+    - If generation failed (empty completion), returns NaN immediately
+      with diagnostic metadata so aggregate metrics treat it as missing.
     - If rubrics are available, uses rubric-graded scoring (preferred).
     - Otherwise, uses exact-answer scoring against the golden answer.
 
@@ -426,10 +426,10 @@ def gim_scorer(grader_model: str | None = None) -> Scorer:
     """
 
     async def score(state: TaskState, target: Target) -> Score:
-        if not state.output.completion:
+        if not state.output.completion.strip():
             return Score(
-                value=0.0,
-                explanation="Generation produced no output — counted as 0.",
+                value=float("nan"),
+                explanation="Generation produced no output — treated as missing.",
                 metadata=_generation_failure_metadata(state),
             )
         rubrics = state.metadata.get("rubrics", [])

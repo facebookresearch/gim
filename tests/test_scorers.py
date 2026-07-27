@@ -6,13 +6,14 @@
 
 """Tests for gim.scorers — Pydantic models, scoring logic, and routing."""
 
+import math
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pydantic import ValidationError
 
 from inspect_ai.model import ChatMessageAssistant, ChatMessageUser
-from inspect_ai.scorer import CORRECT, INCORRECT, Score, Target
+from inspect_ai.scorer import CORRECT, INCORRECT, Score, Target, mean_score
 from inspect_ai.solver import TaskState
 
 from gim.scorers import (
@@ -438,15 +439,16 @@ class TestScoreRubrics:
 
 
 class TestGenerationErrorHandling:
-    async def test_empty_completion_scores_zero(self):
-        """Empty completion (generation failure) returns Score(value=0.0)."""
-        state = _make_task_state("Q?", "")
+    @pytest.mark.parametrize("completion", ["", "  \t\n"])
+    async def test_blank_completion_is_missing(self, completion):
+        """Empty and whitespace-only completions return a missing score."""
+        state = _make_task_state("Q?", completion)
         target = Target(["gold"])
 
         scorer_fn = gim_scorer()
         score = await scorer_fn(state, target)
 
-        assert score.value == 0.0
+        assert math.isnan(score.as_float())
         assert score.metadata.get("generation_error") is True
 
     async def test_empty_completion_skips_judge(self):
@@ -460,6 +462,24 @@ class TestGenerationErrorHandling:
             await scorer_fn(state, target)
 
         mock_judge.assert_not_called()
+
+    async def test_empty_completion_excluded_from_repeat_mean(self):
+        """NaN repeats are skipped; treating missing as zero would yield 0.3."""
+        state = _make_task_state("Q?", "")
+        missing = await gim_scorer()(state, Target(["gold"]))
+
+        reduced = mean_score()([missing, Score(value=0.6)])
+
+        assert reduced.as_float() == 0.6
+
+    async def test_all_empty_completions_remain_missing_after_repeat_mean(self):
+        """A sample with no successful repeats remains missing."""
+        state = _make_task_state("Q?", "")
+        missing = await gim_scorer()(state, Target(["gold"]))
+
+        reduced = mean_score()([missing, missing])
+
+        assert math.isnan(reduced.as_float())
 
     async def test_nonempty_completion_routes_normally(self):
         """Non-empty completion routes to the judge as normal."""
