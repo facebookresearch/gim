@@ -12,7 +12,7 @@ import pytest
 from inspect_ai import Task, Epochs
 from inspect_ai.dataset import MemoryDataset, Sample
 
-from gim.task import _classify_error, _generate_or_zero, v3
+from gim.task import _classify_error, _generate_or_missing, v3
 
 
 def _fake_dataset():
@@ -123,7 +123,7 @@ class TestV3Task:
 # ---------------------------------------------------------------------------
 
 
-class TestGenerateOrZero:
+class TestGenerateOrMissing:
     async def test_successful_generation_returned(self):
         """When generate() succeeds the state is passed through."""
         from unittest.mock import AsyncMock, MagicMock
@@ -136,7 +136,7 @@ class TestGenerateOrZero:
         mock_gen = AsyncMock(return_value=state)
 
         with patch("gim.task.generate", return_value=mock_gen):
-            solver_fn = _generate_or_zero()
+            solver_fn = _generate_or_missing()
             result = await solver_fn(state, MagicMock())
 
         assert result.output.completion == "some answer"
@@ -155,10 +155,10 @@ class TestGenerateOrZero:
         mock_gen = AsyncMock(side_effect=RuntimeError("API error"))
 
         with patch("gim.task.generate", return_value=mock_gen):
-            solver_fn = _generate_or_zero()
+            solver_fn = _generate_or_missing()
             result = await solver_fn(state, MagicMock())
 
-        # State is returned unchanged — scorer will see empty completion → 0.0
+        # The scorer treats the unchanged empty completion as missing.
         assert result is state
         assert state.metadata["solved"] is False
         assert state.metadata["generation_error_type"] == "other"
@@ -176,7 +176,7 @@ class TestGenerateOrZero:
         mock_gen = AsyncMock(return_value=state)
 
         with patch("gim.task.generate", return_value=mock_gen):
-            solver_fn = _generate_or_zero()
+            solver_fn = _generate_or_missing()
             result = await solver_fn(state, MagicMock())
 
         assert result.metadata["solved"] is True
