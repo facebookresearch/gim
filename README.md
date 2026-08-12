@@ -12,7 +12,7 @@ We release the evaluation framework, calibrated IRT parameters, and all public p
 
 # Leaderboard
 <div align="center">
-  
+
 <img width="640" height="1000" alt="image" src="https://github.com/user-attachments/assets/d4f26562-ded9-4d5f-b853-f0eb302f932e" />
 
 </div>
@@ -77,10 +77,34 @@ uv run inspect eval gim/v3 --model google/gemini-3-flash-preview
 | Parameter | Default | Description |
 |---|---|---|
 | `modality` | `all` | Sample filter: `all`, `text_only`, `image`, `docs`, or `media` |
-| `grader_model` | Same as eval model | Model used for LLM-as-judge scoring |
+| `judge_id` | `gemini-3-flash-preview` | Calibrated judge used for IRT scoring (see below) |
+| `judge_model` | Route for the resolved `judge_id` | Provider/model route used to call the judge |
 | `dataset_path` | `data` | Path to the HuggingFace dataset directory |
 | `media_base` | Dataset directory | Base path/URI for attachments. Use `gs://bucket/prefix` for GCS (Google only) |
 | `epochs` | `1` | Number of runs per sample (use 5 for paper results) |
+
+### Judges
+
+The item bank is calibrated with an additive judge fixed effect (γ), so a GIM
+score is only comparable to the published leaderboard when it comes from one of
+the five calibrated judges. Pick any one of them — the scorer subtracts that
+judge's γ, placing the result on the shared ability scale.
+
+| `judge_id` | γ | Default route |
+|---|---|---|
+| `gemini-3-flash-preview` | +0.560 | `google/gemini-3-flash-preview` |
+| `gemma-4-31b-it` | +0.485 | `vllm/google/gemma-4-31b-it` |
+| `gpt-5.4-mini` | −0.208 | `openai/gpt-5.4-mini` |
+| `gemini-3-5-flash` | −0.296 | `google/gemini-3-5-flash` |
+| `claude-4.5-haiku` | −0.541 | `anthropic/claude-4.5-haiku` |
+
+```bash
+# Score with a different calibrated judge
+uv run inspect eval gim/v3 --model openai/gpt-4o -T judge_id=claude-4.5-haiku
+```
+
+An uncalibrated judge is rejected up front, before any inference runs — its γ is
+unknown, so its leniency would surface as bias in θ.
 
 ### Thinking / Reasoning Effort
 

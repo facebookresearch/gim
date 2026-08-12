@@ -18,6 +18,7 @@ from collections import defaultdict
 
 from inspect_ai.scorer import metric, SampleScore, Value
 
+from .judges import validate_judge_id
 from .modality import modality_supersets
 
 logger = logging.getLogger(__name__)
@@ -40,17 +41,21 @@ def gim_score() -> ...:
         # Lazy import to avoid loading numpy/item bank when not needed.
         from .irt import GIMScorer
 
-        score_dict: dict[str, float] = {}
+        observations: list[tuple[str, float, str]] = []
         for s in scores:
-            if s.sample_id:
-                score_dict[str(s.sample_id)] = s.score.as_float()
+            if not s.sample_id:
+                continue
+            metadata = s.score.metadata or {}
+            judge_id = metadata.get("judge_id")
+            if not judge_id:
+                raise ValueError(
+                    "Official gim_score requires judge_id metadata on every score."
+                )
+            judge_id = validate_judge_id(str(judge_id)).id
+            observations.append((str(s.sample_id), s.score.as_float(), judge_id))
 
-        try:
-            scorer = GIMScorer()
-            result = scorer.score(score_dict)
-        except Exception:
-            logger.warning("IRT scoring failed; returning empty metrics", exc_info=True)
-            return {}
+        scorer = GIMScorer()
+        result = scorer.score_observations(observations)
 
         return {
             "gim_score": result.theta,

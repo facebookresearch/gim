@@ -9,10 +9,9 @@
 from unittest.mock import patch
 
 import pytest
-from inspect_ai import Task, Epochs
-from inspect_ai.dataset import MemoryDataset, Sample
-
 from gim.task import _classify_error, _generate_or_missing, v3
+from inspect_ai import Epochs, Task
+from inspect_ai.dataset import MemoryDataset, Sample
 
 
 def _fake_dataset():
@@ -68,11 +67,14 @@ class TestV3Task:
 
     @patch("gim.task.gim_dataset", return_value=_fake_dataset())
     @patch("gim.task.gim_scorer")
-    def test_passes_grader_model(self, mock_scorer, mock_dataset):
+    def test_passes_judge_model(self, mock_scorer, mock_dataset):
         from gim.scorers import gim_scorer as real_scorer
+
         mock_scorer.side_effect = real_scorer
-        v3(grader_model="openai/gpt-4o")
-        mock_scorer.assert_called_once_with(grader_model="openai/gpt-4o")
+        v3(judge_model="anthropic/claude-4.5-haiku")
+        mock_scorer.assert_called_once_with(
+            judge_id="claude-4.5-haiku", judge_model="anthropic/claude-4.5-haiku"
+        )
 
     @patch("gim.task.gim_dataset", return_value=_fake_dataset())
     def test_fail_on_error_is_false(self, mock_dataset):
@@ -127,6 +129,7 @@ class TestGenerateOrMissing:
     async def test_successful_generation_returned(self):
         """When generate() succeeds the state is passed through."""
         from unittest.mock import AsyncMock, MagicMock
+
         from inspect_ai.solver import TaskState
 
         state = MagicMock(spec=TaskState)
@@ -144,6 +147,7 @@ class TestGenerateOrMissing:
     async def test_generation_failure_returns_state_with_empty_completion(self):
         """When generate() raises, state is returned with its default empty output."""
         from unittest.mock import AsyncMock, MagicMock
+
         from inspect_ai.solver import TaskState
 
         state = MagicMock(spec=TaskState)
@@ -166,6 +170,7 @@ class TestGenerateOrMissing:
     async def test_successful_generation_sets_sampled_true(self):
         """When generate() succeeds, state.metadata['sampled'] is set to True."""
         from unittest.mock import AsyncMock, MagicMock
+
         from inspect_ai.solver import TaskState
 
         state = MagicMock(spec=TaskState)
@@ -201,16 +206,23 @@ class TestClassifyError:
         assert _classify_error(RuntimeError("HTTP 429")) == "rate_limit"
 
     def test_file_not_found(self):
-        assert _classify_error(FileNotFoundError("FileNotFoundError: /path")) == "file_not_found"
+        assert (
+            _classify_error(FileNotFoundError("FileNotFoundError: /path"))
+            == "file_not_found"
+        )
 
     def test_server_error_502(self):
         assert _classify_error(RuntimeError("502 Bad Gateway")) == "server_error"
 
     def test_server_error_503(self):
-        assert _classify_error(RuntimeError("503 service unavailable")) == "server_error"
+        assert (
+            _classify_error(RuntimeError("503 service unavailable")) == "server_error"
+        )
 
     def test_context_length(self):
-        assert _classify_error(RuntimeError("context length exceeded")) == "context_length"
+        assert (
+            _classify_error(RuntimeError("context length exceeded")) == "context_length"
+        )
 
     def test_max_tokens(self):
         assert _classify_error(RuntimeError("max_tokens reached")) == "context_length"

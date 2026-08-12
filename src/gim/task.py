@@ -27,8 +27,8 @@ Usage (run from the project root with ``uv run``):
     uv run inspect eval gim/v3 --model google/gemini-3-flash-preview-genai -M api_version=v1 \\
         -T media_base=gs://tbd-evals/gim/v3.0.0
 
-    # Override grader model
-    uv run inspect eval gim/v3 --model openai/gpt-4o -T grader_model=openai/gpt-4o
+    # Choose a different calibrated judge
+    uv run inspect eval gim/v3 --model openai/gpt-4o -T judge_id=claude-4.5-haiku
 
     # Multiple epochs for statistical robustness
     uv run inspect eval gim/v3 --model openai/gpt-4o -T epochs=5
@@ -45,6 +45,7 @@ from inspect_ai._util.content import ContentDocument
 from inspect_ai.solver import Generate, generate, Solver, solver, TaskState
 
 from .dataset import gim_dataset
+from .judges import resolve_judge
 from .scorers import gim_scorer
 
 logger = logging.getLogger(__name__)
@@ -169,7 +170,8 @@ _MODALITY_PRESETS: dict[str, tuple[list[str] | None, bool]] = {
 
 @task
 def v3(
-    grader_model: str | None = "google/gemini-3-flash-preview",
+    judge_id: str | None = None,
+    judge_model: str | None = None,
     dataset_path: str = "",
     epochs: int = 1,
     media_base: str = "",
@@ -182,7 +184,12 @@ def v3(
     """GIM v3 — all modalities (text, image, document).
 
     Args:
-        grader_model: Model for LLM-as-judge scoring. Defaults to google/gemini-3-flash-preview.
+        judge_id: Canonical calibrated judge ID used for official IRT scoring.
+            One of the five judges the item bank was calibrated on. Inferred
+            from judge_model when it matches a calibrated route. Defaults to
+            gemini-3-flash-preview.
+        judge_model: Provider/model route used for LLM-as-judge scoring.
+            Defaults to the route for the resolved judge_id.
         dataset_path: HuggingFace dataset directory. Defaults to data/gim_v3_dataset.
         epochs: Runs per sample (use 5 for paper results).
         media_base: Base path/URI for resolving attachment paths. Defaults to the
@@ -208,6 +215,9 @@ def v3(
             f"Choose from: {', '.join(_MODALITY_PRESETS)}"
         )
     modalities, require_attachment = _MODALITY_PRESETS[modality]
+    if judge_id is None and judge_model is None:
+        judge_id = "gemini-3-flash-preview"
+    judge_spec, resolved_judge_model = resolve_judge(judge_id, judge_model)
     return Task(
         dataset=gim_dataset(
             path=dataset_path or None,
@@ -219,7 +229,11 @@ def v3(
         solver=_generate_or_missing(
             timeout=generation_timeout, skip_documents=skip_documents
         ),
-        scorer=None if no_score else gim_scorer(grader_model=grader_model),
+        scorer=(
+            None
+            if no_score
+            else gim_scorer(judge_id=judge_spec.id, judge_model=resolved_judge_model)
+        ),
         epochs=Epochs(epochs, reducer="mean") if epochs > 1 else None,
         fail_on_error=False,
     )

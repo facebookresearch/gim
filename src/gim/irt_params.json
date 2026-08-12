@@ -1,3715 +1,3754 @@
 {
-  "version": 1,
-  "model": "2PL_logit_normal",
-  "description": "GIM IRT item bank (Public set (615)). Each prompt has discrimination (a) and difficulty (b) parameters calibrated via GPU-accelerated 2PL IRT on logit-transformed continuous [0,1] scores. Parameters were jointly estimated on all 820 prompts, then filtered.",
+  "version": 2,
+  "model": "2PL_logit_normal_judge_fixed_effect",
+  "description": "GIM IRT item bank (Public set (615)). Each prompt has discrimination (a) and difficulty (b) parameters calibrated via GPU-accelerated 2PL IRT on logit-transformed continuous [0,1] scores with additive judge fixed effects. Parameters were jointly estimated on all 820 prompts, then filtered.",
   "transform": {
     "squeeze_scale": 0.998,
     "squeeze_offset": 0.001,
     "formula": "y = ln((p * 0.998 + 0.001) / (1 - (p * 0.998 + 0.001)))"
   },
   "scoring": {
-    "formula": "theta = sum(a_j * (y_j + a_j * b_j)) / sum(a_j^2)",
+    "formula": "theta = sum(a_j * (y_jk - gamma_k + a_j * b_j)) / sum(a_j^2)",
     "se_formula": "se = sigma_hat / sqrt(sum(a_j^2))",
-    "note": "Closed-form weighted least squares. No optimizer needed."
+    "note": "Closed-form weighted least squares after subtracting centered judge effects from logit scores.",
+    "requires_judge_id": true
   },
   "calibration": {
     "n_models": 53,
     "n_prompts_calibrated": 820,
-    "r_squared": 0.6707785129547119,
-    "sigma_hat": 2.530444383621216,
-    "convergence_steps": 10007,
-    "disc_regularization": 0.5
+    "n_judges": 5,
+    "n_observations": 203800,
+    "r_squared": 0.6419506072998047,
+    "sigma_hat": 2.242610193147754,
+    "convergence_steps": 9207,
+    "disc_regularization": 0.5,
+    "equation": "logit(score_ijk) = a_j * (theta_i - b_j) + gamma_k + error_ijk"
   },
+  "judge_effects": {
+    "gemini-3-flash-preview": 0.559612,
+    "gemma-4-31b-it": 0.484587,
+    "gpt-5.4-mini": -0.207799,
+    "gemini-3-5-flash": -0.295692,
+    "claude-4.5-haiku": -0.540708
+  },
+  "judge_effect_constraint": "mean(gamma_k) = 0",
   "items": {
     "p00079911": {
-      "a": 2.867392,
-      "b": -1.434466,
+      "a": 3.24298,
+      "b": -0.988219,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p00217491": {
-      "a": 2.539738,
-      "b": -0.411365,
+      "a": 1.872486,
+      "b": -0.738453,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p00268503": {
-      "a": 2.990795,
-      "b": 0.073589,
+      "a": 3.145878,
+      "b": 0.249156,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p00293573": {
-      "a": 3.126951,
-      "b": 0.939682,
+      "a": 3.616688,
+      "b": 0.876615,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p00304458": {
-      "a": 0.582529,
-      "b": -1.678535,
+      "a": 0.633941,
+      "b": -1.164896,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p00440501": {
-      "a": 0.578271,
-      "b": -11.401967,
+      "a": 0.641342,
+      "b": -6.497036,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p00543387": {
-      "a": 0.468908,
-      "b": 14.027867,
+      "a": 0.533992,
+      "b": 12.442122,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p00551649": {
-      "a": 0.456647,
-      "b": 13.183203,
+      "a": 0.526706,
+      "b": 9.525809,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p00586006": {
-      "a": 1.624963,
-      "b": -0.892431,
+      "a": 1.282774,
+      "b": -0.629726,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p00951375": {
-      "a": 0.735796,
-      "b": 5.971478,
+      "a": 0.748614,
+      "b": 7.152464,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p01035500": {
-      "a": 0.539243,
-      "b": 12.993549,
+      "a": 0.639672,
+      "b": 11.054165,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p01048578": {
-      "a": 0.61431,
-      "b": -10.63077,
+      "a": 0.645065,
+      "b": -7.046537,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p01432093": {
-      "a": 0.478525,
-      "b": -5.618097,
+      "a": 0.530766,
+      "b": -2.35857,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p01446589": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.540448,
+      "b": 12.774131,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p01792842": {
-      "a": 0.627197,
-      "b": -2.231049,
+      "a": 0.651409,
+      "b": -1.433673,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p01992440": {
-      "a": 2.237758,
-      "b": -0.182074,
+      "a": 1.651041,
+      "b": 0.133548,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p02189068": {
-      "a": 3.576711,
-      "b": 0.169502,
+      "a": 4.036357,
+      "b": 0.249427,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p02196748": {
-      "a": 0.843753,
-      "b": 2.29313,
+      "a": 0.765157,
+      "b": 2.062677,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p02230550": {
-      "a": 0.52169,
-      "b": -11.959476,
+      "a": 0.55355,
+      "b": -8.778856,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p02682466": {
-      "a": 0.52967,
-      "b": 0.403999,
+      "a": 0.594098,
+      "b": 0.355113,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p02682854": {
-      "a": 1.23106,
-      "b": 0.517459,
+      "a": 1.084401,
+      "b": 0.332615,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p02847423": {
-      "a": 0.431218,
-      "b": 15.6153,
+      "a": 0.493331,
+      "b": 13.722792,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p02977167": {
-      "a": 0.736355,
-      "b": -0.507482,
+      "a": 0.869411,
+      "b": -0.192129,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p03093226": {
-      "a": 1.000559,
-      "b": -2.686551,
+      "a": 0.75222,
+      "b": -1.61527,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p03403745": {
-      "a": 2.261215,
-      "b": 1.220626,
+      "a": 1.215262,
+      "b": 2.685676,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p03613988": {
-      "a": 0.610184,
-      "b": -1.821752,
+      "a": 0.614038,
+      "b": -0.746849,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p03684394": {
-      "a": 1.053764,
-      "b": -1.167355,
+      "a": 0.853949,
+      "b": -0.3123,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p03885063": {
-      "a": 3.129997,
-      "b": -0.976321,
+      "a": 3.59007,
+      "b": -0.66983,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p04096574": {
-      "a": 1.15301,
-      "b": 1.492695,
+      "a": 0.970307,
+      "b": 1.568617,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p05024169": {
-      "a": 0.924595,
-      "b": -2.095904,
+      "a": 0.78001,
+      "b": -0.937123,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p05312083": {
-      "a": 1.323352,
-      "b": 0.295111,
+      "a": 1.297931,
+      "b": 0.393541,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p05435814": {
-      "a": 0.543864,
-      "b": 2.000432,
+      "a": 0.595471,
+      "b": 1.781088,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p05557477": {
-      "a": 0.542089,
-      "b": 8.290705,
+      "a": 0.645537,
+      "b": 7.17987,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p05960180": {
-      "a": 0.697804,
-      "b": 0.155452,
+      "a": 0.762511,
+      "b": 0.375089,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p06306158": {
-      "a": 0.740049,
-      "b": 1.424924,
+      "a": 0.771666,
+      "b": 1.175357,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p06381153": {
-      "a": 1.416969,
-      "b": 3.456986,
+      "a": 1.829653,
+      "b": 2.634136,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p06589493": {
-      "a": 1.838517,
-      "b": 1.183038,
+      "a": 2.406112,
+      "b": 0.957994,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p06692292": {
-      "a": 0.54296,
-      "b": -12.36926,
+      "a": 0.60064,
+      "b": -7.168971,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p06923036": {
-      "a": 1.086706,
-      "b": 0.162792,
+      "a": 1.144613,
+      "b": 0.808447,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p06989341": {
-      "a": 2.769164,
-      "b": -0.608759,
+      "a": 2.410456,
+      "b": -0.346996,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p06995515": {
-      "a": 1.560298,
-      "b": -0.305591,
+      "a": 1.48318,
+      "b": -0.385514,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p07585366": {
-      "a": 0.732614,
-      "b": -0.468219,
+      "a": 0.773178,
+      "b": -0.292402,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p07741163": {
-      "a": 0.683078,
-      "b": 5.289711,
+      "a": 0.883078,
+      "b": 3.343798,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p07881421": {
-      "a": 0.663918,
-      "b": 0.046687,
+      "a": 0.820406,
+      "b": -0.619476,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p07911774": {
-      "a": 1.11478,
-      "b": -1.181738,
+      "a": 0.986036,
+      "b": -0.937318,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p07976344": {
-      "a": 0.792632,
-      "b": -1.140921,
+      "a": 0.795298,
+      "b": -0.754229,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p07997476": {
-      "a": 2.824375,
-      "b": 0.60973,
+      "a": 2.669388,
+      "b": 0.536898,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p08542867": {
-      "a": 0.713098,
-      "b": -0.700651,
+      "a": 0.719686,
+      "b": -0.319313,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p08580596": {
-      "a": 2.579772,
-      "b": 0.683066,
+      "a": 2.835851,
+      "b": 0.786163,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p08613392": {
-      "a": 0.294288,
-      "b": 16.214489,
+      "a": 0.336492,
+      "b": 14.712495,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p08863198": {
-      "a": 1.012591,
-      "b": 0.088686,
+      "a": 1.365559,
+      "b": 1.665338,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p08937303": {
-      "a": 1.738373,
-      "b": -2.491347,
+      "a": 1.354785,
+      "b": -2.163312,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p09020935": {
-      "a": 0.518371,
-      "b": 13.065133,
+      "a": 0.582293,
+      "b": 11.633903,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p09055798": {
-      "a": 0.427049,
-      "b": -0.974975,
+      "a": 0.663875,
+      "b": -0.739108,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p09057167": {
-      "a": 0.830617,
-      "b": -2.989669,
+      "a": 0.71381,
+      "b": -2.238019,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p09076062": {
-      "a": 0.52571,
-      "b": -1.172125,
+      "a": 0.574845,
+      "b": -0.87478,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p09431057": {
-      "a": 0.571257,
-      "b": 4.963608,
+      "a": 0.597209,
+      "b": 3.381355,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p09504641": {
-      "a": 2.183602,
-      "b": -1.135405,
+      "a": 2.431614,
+      "b": -0.830496,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p09569698": {
-      "a": 0.542375,
-      "b": 3.277194,
+      "a": 0.634862,
+      "b": 3.910081,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p09685468": {
-      "a": 0.559752,
-      "b": -2.418269,
+      "a": 0.624772,
+      "b": -1.178335,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p09763799": {
-      "a": 0.606149,
-      "b": -0.823023,
+      "a": 0.647085,
+      "b": -0.66047,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p09891275": {
-      "a": 1.993475,
-      "b": -1.8096,
+      "a": 2.107772,
+      "b": -1.394656,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p09989873": {
-      "a": 2.471728,
-      "b": -1.06977,
+      "a": 2.920314,
+      "b": -0.66295,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p10162856": {
-      "a": 2.75942,
-      "b": -0.401386,
+      "a": 2.84203,
+      "b": -0.575036,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p10221050": {
-      "a": 0.784959,
-      "b": -1.835498,
+      "a": 0.800052,
+      "b": -0.629603,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p10309546": {
-      "a": 2.260213,
-      "b": 1.152842,
+      "a": 1.060305,
+      "b": 2.51628,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p10327708": {
-      "a": 0.966437,
-      "b": -1.906242,
+      "a": 0.834538,
+      "b": -1.233773,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p10404014": {
-      "a": 1.040754,
-      "b": 3.649314,
+      "a": 1.090226,
+      "b": 4.429194,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p10676045": {
-      "a": 0.814373,
-      "b": -1.660998,
+      "a": 0.858058,
+      "b": -1.170426,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p11531525": {
-      "a": 0.602371,
-      "b": -4.13879,
+      "a": 0.594983,
+      "b": -2.335373,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p11829166": {
-      "a": 0.714186,
-      "b": 0.442807,
+      "a": 0.799716,
+      "b": 0.374162,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p11969371": {
-      "a": 0.571658,
-      "b": 12.076001,
+      "a": 0.636051,
+      "b": 10.796007,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p12558519": {
-      "a": 0.755943,
-      "b": 1.616015,
+      "a": 0.838066,
+      "b": 1.052811,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p13093711": {
-      "a": 0.452491,
-      "b": 14.258134,
+      "a": 0.698238,
+      "b": 7.554698,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p13248500": {
-      "a": 0.974475,
-      "b": 0.295537,
+      "a": 0.898143,
+      "b": 0.527819,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p13446747": {
-      "a": 0.868809,
-      "b": -1.592093,
+      "a": 1.091129,
+      "b": -1.164431,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p13457979": {
-      "a": 0.521869,
-      "b": -3.046759,
+      "a": 0.616869,
+      "b": -1.957955,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p13562474": {
-      "a": 0.583505,
-      "b": 4.519927,
+      "a": 0.6161,
+      "b": 4.019904,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p13663571": {
-      "a": 1.403072,
-      "b": -2.672351,
+      "a": 0.901877,
+      "b": -2.306521,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p13860951": {
-      "a": 1.577458,
-      "b": -2.067531,
+      "a": 1.15001,
+      "b": -1.561764,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p14067857": {
-      "a": 0.604026,
-      "b": 0.274964,
+      "a": 0.702387,
+      "b": -0.054664,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p14097856": {
-      "a": 0.830005,
-      "b": -2.082048,
+      "a": 0.762187,
+      "b": -1.023976,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p14479114": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.535935,
+      "b": 12.843194,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p14497711": {
-      "a": 1.828806,
-      "b": 2.021875,
+      "a": 2.049006,
+      "b": 1.636929,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p14506029": {
-      "a": 3.05439,
-      "b": -0.443237,
+      "a": 3.29062,
+      "b": 0.081265,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p14609775": {
-      "a": 0.886385,
-      "b": 0.218501,
+      "a": 0.852725,
+      "b": 0.546002,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p14836578": {
-      "a": 0.528288,
-      "b": 12.356382,
+      "a": 0.596295,
+      "b": 10.956077,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p15098421": {
-      "a": 0.849741,
-      "b": -0.242914,
+      "a": 0.823369,
+      "b": -0.09875,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p15218902": {
-      "a": 0.493755,
-      "b": -1.976417,
+      "a": 0.698069,
+      "b": -1.592895,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p15258556": {
-      "a": 1.577878,
-      "b": -2.116192,
+      "a": 1.396118,
+      "b": -1.559493,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p15402966": {
-      "a": 0.662793,
-      "b": -2.134668,
+      "a": 0.657331,
+      "b": -1.784406,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p15468131": {
-      "a": 2.219423,
-      "b": -1.902469,
+      "a": 2.062197,
+      "b": -1.239561,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p15494020": {
-      "a": 1.380266,
-      "b": -0.623869,
+      "a": 1.42928,
+      "b": -0.607461,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p15644734": {
-      "a": 1.96584,
-      "b": -0.358391,
+      "a": 1.471566,
+      "b": -0.85093,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p15737485": {
-      "a": 0.672687,
-      "b": 0.773616,
+      "a": 0.773334,
+      "b": 0.351734,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p15826768": {
-      "a": 0.752216,
-      "b": 5.54864,
+      "a": 0.77154,
+      "b": 4.930405,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p15911757": {
-      "a": 1.248232,
-      "b": 1.092337,
+      "a": 1.4388,
+      "b": 1.218377,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p15914213": {
-      "a": 1.225319,
-      "b": -2.426034,
+      "a": 1.130677,
+      "b": -1.500197,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p16084529": {
-      "a": 0.716778,
-      "b": -3.107628,
+      "a": 0.649117,
+      "b": -1.214822,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p16239932": {
-      "a": 2.835005,
-      "b": 0.33535,
+      "a": 2.493651,
+      "b": 0.976559,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p16376818": {
-      "a": 1.17453,
-      "b": -3.636031,
+      "a": 0.936443,
+      "b": -2.588134,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p16551208": {
-      "a": 1.751402,
-      "b": -1.321131,
+      "a": 1.302263,
+      "b": -0.923698,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p16587647": {
-      "a": 0.439381,
-      "b": 13.908545,
+      "a": 0.492329,
+      "b": 12.507036,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p16649849": {
-      "a": 0.660255,
-      "b": 0.468453,
+      "a": 0.90478,
+      "b": 0.180897,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p16943688": {
-      "a": 0.585568,
-      "b": -0.886019,
+      "a": 0.646934,
+      "b": -0.539205,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p17266649": {
-      "a": 1.842497,
-      "b": 0.419132,
+      "a": 1.949441,
+      "b": 0.682219,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p17340176": {
-      "a": 0.652044,
-      "b": -1.728326,
+      "a": 0.674174,
+      "b": -0.58436,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p17566124": {
-      "a": 1.228466,
-      "b": -2.102891,
+      "a": 0.915158,
+      "b": -1.193337,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p17587423": {
-      "a": 0.901687,
-      "b": -4.544662,
+      "a": 0.944682,
+      "b": -0.365993,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p17661528": {
-      "a": 0.451089,
-      "b": 15.044443,
+      "a": 0.506793,
+      "b": 11.143424,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p17739818": {
-      "a": 0.357526,
-      "b": 9.002687,
+      "a": 0.454944,
+      "b": 5.458678,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p17865290": {
-      "a": 0.587242,
-      "b": -11.155876,
+      "a": 0.590352,
+      "b": -7.446726,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p18200419": {
-      "a": 0.876935,
-      "b": -2.562609,
+      "a": 0.88482,
+      "b": -2.48896,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p18480374": {
-      "a": 1.610256,
-      "b": -1.671563,
+      "a": 1.020694,
+      "b": -2.782268,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p18586383": {
-      "a": 0.718607,
-      "b": 1.011031,
+      "a": 0.680178,
+      "b": 0.968252,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p18594960": {
-      "a": 1.290783,
-      "b": -1.919131,
+      "a": 1.009114,
+      "b": -1.311181,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p19243056": {
-      "a": 1.288159,
-      "b": -1.983692,
+      "a": 1.049414,
+      "b": -1.73507,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p19347490": {
-      "a": 0.576883,
-      "b": 0.507566,
+      "a": 0.702495,
+      "b": 0.308414,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p19431599": {
-      "a": 0.649852,
-      "b": -1.645623,
+      "a": 0.707487,
+      "b": -1.117299,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p19436822": {
-      "a": 0.838064,
-      "b": 6.612283,
+      "a": 0.988931,
+      "b": 5.608167,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p19501021": {
-      "a": 3.118181,
-      "b": -0.13956,
+      "a": 2.923873,
+      "b": 0.149842,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p19553323": {
-      "a": 1.945239,
-      "b": 0.77857,
+      "a": 2.567469,
+      "b": 0.554519,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p20087237": {
-      "a": 2.252598,
-      "b": -0.583183,
+      "a": 1.718853,
+      "b": -1.183775,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p20130928": {
-      "a": 2.127331,
-      "b": -1.900022,
+      "a": 2.469796,
+      "b": -1.338867,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p20685599": {
-      "a": 0.620576,
-      "b": -0.720586,
+      "a": 0.595325,
+      "b": -1.420294,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p20819072": {
-      "a": 3.091429,
-      "b": 0.951199,
+      "a": 3.466034,
+      "b": 0.943493,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p20916892": {
-      "a": 0.562397,
-      "b": 9.299783,
+      "a": 0.821648,
+      "b": 1.051292,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p20931532": {
-      "a": 2.605738,
-      "b": -0.599797,
+      "a": 1.676814,
+      "b": -1.158408,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p21192815": {
-      "a": 1.029431,
-      "b": -2.811369,
+      "a": 0.716656,
+      "b": -0.150863,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p21356642": {
-      "a": 4.095275,
-      "b": 0.547136,
+      "a": 4.476693,
+      "b": 0.419374,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p21502461": {
-      "a": 0.518478,
-      "b": -2.033391,
+      "a": 0.584207,
+      "b": -2.096754,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p21558696": {
-      "a": 1.145106,
-      "b": -4.985589,
+      "a": 0.905608,
+      "b": -3.658768,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p21703458": {
-      "a": 0.579699,
-      "b": 0.605711,
+      "a": 0.617495,
+      "b": 0.453484,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p21761259": {
-      "a": 0.493225,
-      "b": 13.862451,
+      "a": 0.568267,
+      "b": 11.970625,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p21772337": {
-      "a": 0.591152,
-      "b": -10.679893,
+      "a": 0.617152,
+      "b": -6.93187,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p21873239": {
-      "a": 0.483723,
-      "b": 12.859211,
+      "a": 0.559475,
+      "b": 11.17308,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p22395100": {
-      "a": 3.722463,
-      "b": -0.327694,
+      "a": 4.221688,
+      "b": -0.210014,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p22407191": {
-      "a": 1.527951,
-      "b": 3.383448,
+      "a": 1.891631,
+      "b": 2.591851,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p22542346": {
-      "a": 0.898211,
-      "b": -2.258334,
+      "a": 0.789917,
+      "b": -1.184303,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p22686952": {
-      "a": 0.647516,
-      "b": 0.14159,
+      "a": 0.692214,
+      "b": 0.236042,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p22736587": {
-      "a": 2.237756,
-      "b": -1.102996,
+      "a": 2.543519,
+      "b": -0.714064,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p22891509": {
-      "a": 0.770816,
-      "b": -2.566295,
+      "a": 0.770007,
+      "b": -1.647729,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p22928480": {
-      "a": 1.161134,
-      "b": -2.110481,
+      "a": 0.786009,
+      "b": -2.378633,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p23034710": {
-      "a": 1.080871,
-      "b": -3.25264,
+      "a": 1.012694,
+      "b": -2.272312,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p23142263": {
-      "a": 0.527898,
-      "b": 0.728497,
+      "a": 0.601794,
+      "b": 0.474609,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p23162138": {
-      "a": 0.545666,
-      "b": 3.260991,
+      "a": 0.655758,
+      "b": 2.349657,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p23305584": {
-      "a": 0.626199,
-      "b": -8.645419,
+      "a": 0.636188,
+      "b": -5.405501,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p23460923": {
-      "a": 1.974725,
-      "b": -1.380895,
+      "a": 1.413221,
+      "b": -1.069345,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p23542136": {
-      "a": 0.959251,
-      "b": 5.377884,
+      "a": 1.080516,
+      "b": 4.795227,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p23683429": {
-      "a": 0.568412,
-      "b": 11.722247,
+      "a": 0.674886,
+      "b": 9.741741,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p23858774": {
-      "a": 0.73949,
-      "b": 0.005191,
+      "a": 0.776258,
+      "b": 0.160846,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p23877588": {
-      "a": 1.223044,
-      "b": -1.318815,
+      "a": 0.952482,
+      "b": -0.722404,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p23889203": {
-      "a": 2.513763,
-      "b": -0.015938,
+      "a": 1.626041,
+      "b": -0.250398,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p24291343": {
-      "a": 1.41469,
-      "b": -0.519244,
+      "a": 1.321814,
+      "b": -0.262549,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p24765673": {
-      "a": 2.276054,
-      "b": 0.974791,
+      "a": 3.411495,
+      "b": 0.560371,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p24805424": {
-      "a": 1.505767,
-      "b": 3.001187,
+      "a": 1.714184,
+      "b": 2.695628,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p24819271": {
-      "a": 0.402973,
-      "b": 0.978484,
+      "a": 0.608918,
+      "b": 0.072925,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p24949508": {
-      "a": 0.954515,
-      "b": 0.197322,
+      "a": 0.82878,
+      "b": 0.431191,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p25046219": {
-      "a": 1.053657,
-      "b": -2.738303,
+      "a": 0.872083,
+      "b": -1.719743,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p25663889": {
-      "a": 3.577129,
-      "b": -0.036773,
+      "a": 4.13555,
+      "b": 0.057312,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p25885153": {
-      "a": 0.835671,
-      "b": -1.929303,
+      "a": 0.765365,
+      "b": -1.567543,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p25995701": {
-      "a": 2.216976,
-      "b": 0.15456,
+      "a": 1.693513,
+      "b": 0.39347,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p26034250": {
-      "a": 1.451894,
-      "b": 0.249511,
+      "a": 1.150375,
+      "b": -0.146891,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p26101818": {
-      "a": 0.915281,
-      "b": 3.125426,
+      "a": 0.961892,
+      "b": 2.967271,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p26111882": {
-      "a": 0.718374,
-      "b": 6.344909,
+      "a": 0.709225,
+      "b": 5.336881,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p26114272": {
-      "a": 0.480952,
-      "b": 14.340539,
+      "a": 0.541058,
+      "b": 12.748713,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p26142488": {
-      "a": 1.517121,
-      "b": -1.113352,
+      "a": 1.238926,
+      "b": -0.761967,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p26143836": {
-      "a": 2.015776,
-      "b": 0.930506,
+      "a": 0.94643,
+      "b": 5.075478,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p26338474": {
-      "a": 1.355185,
-      "b": -1.227665,
+      "a": 1.082049,
+      "b": -1.104887,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p26549552": {
-      "a": 0.893047,
-      "b": -0.442263,
+      "a": 0.865631,
+      "b": 0.017633,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p26795058": {
-      "a": 1.888997,
-      "b": -1.385692,
+      "a": 1.39457,
+      "b": -1.18172,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p26973451": {
-      "a": 0.546333,
-      "b": -0.234735,
+      "a": 0.612829,
+      "b": -0.186626,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p27093487": {
-      "a": 1.06424,
-      "b": 0.243814,
+      "a": 0.971081,
+      "b": 0.3505,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p27101937": {
-      "a": 0.61421,
-      "b": -10.364497,
+      "a": 0.625162,
+      "b": -6.114189,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p27200147": {
-      "a": 0.991948,
-      "b": -3.862336,
+      "a": 0.876434,
+      "b": -4.946465,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p27355903": {
-      "a": 1.306798,
-      "b": 1.578748,
+      "a": 1.263951,
+      "b": 1.672586,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p27528849": {
-      "a": 0.431044,
-      "b": 2.970466,
+      "a": 0.513039,
+      "b": 2.71173,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p27623150": {
-      "a": 0.969854,
-      "b": 3.409129,
+      "a": 1.036504,
+      "b": 2.657202,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p27740719": {
-      "a": 1.19368,
-      "b": -1.742765,
+      "a": 1.053637,
+      "b": -1.34899,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p27946111": {
-      "a": 1.110245,
-      "b": -2.305983,
+      "a": 0.954772,
+      "b": -1.504315,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p28290988": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.556218,
+      "b": 12.300421,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p28893468": {
-      "a": 1.855466,
-      "b": 2.100838,
+      "a": 2.774786,
+      "b": 1.352824,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p28949565": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.540448,
+      "b": 12.774131,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p29177001": {
-      "a": 0.531075,
-      "b": 0.743833,
+      "a": 0.691941,
+      "b": -0.045306,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p29750871": {
-      "a": 1.358787,
-      "b": -1.669533,
+      "a": 0.920119,
+      "b": -1.194581,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p30011870": {
-      "a": 0.549917,
-      "b": -12.109827,
+      "a": 0.631684,
+      "b": -6.92587,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p30197691": {
-      "a": 1.364852,
-      "b": -3.09463,
+      "a": 0.988915,
+      "b": -1.973426,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p30487902": {
-      "a": 2.754264,
-      "b": -1.340735,
+      "a": 3.021451,
+      "b": -1.031957,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p30491138": {
-      "a": 1.030601,
-      "b": -0.251311,
+      "a": 0.928523,
+      "b": -0.04713,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p30661215": {
-      "a": 0.513884,
-      "b": 0.053566,
+      "a": 0.578482,
+      "b": 0.119509,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p30671624": {
-      "a": 0.490369,
-      "b": -4.992313,
+      "a": 0.533807,
+      "b": -2.479648,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p31099963": {
-      "a": 2.227297,
-      "b": 1.072369,
+      "a": 1.685602,
+      "b": 1.493716,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p31434504": {
-      "a": 2.135836,
-      "b": -0.363744,
+      "a": 2.038271,
+      "b": 0.11625,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p31450599": {
-      "a": 1.097543,
-      "b": -0.007682,
+      "a": 1.038682,
+      "b": 0.286042,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p31540253": {
-      "a": 1.208801,
-      "b": 0.274978,
+      "a": 0.870236,
+      "b": -0.679659,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p31710654": {
-      "a": 0.604791,
-      "b": -1.283779,
+      "a": 0.718215,
+      "b": -0.614958,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p32067148": {
-      "a": 0.956443,
-      "b": -0.578484,
+      "a": 0.901158,
+      "b": -0.221393,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p32083112": {
-      "a": 0.443664,
-      "b": 11.299528,
+      "a": 0.647103,
+      "b": 4.926925,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p32351345": {
-      "a": 0.777779,
-      "b": 0.644378,
+      "a": 0.758245,
+      "b": -0.395154,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p32433032": {
-      "a": 0.557339,
-      "b": -0.436843,
+      "a": 0.62694,
+      "b": -0.47983,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p32778700": {
-      "a": 0.313724,
-      "b": 14.551976,
+      "a": 0.339982,
+      "b": 14.853641,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p32870028": {
-      "a": 0.997293,
-      "b": -1.660269,
+      "a": 0.842261,
+      "b": -1.197118,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p32947791": {
-      "a": 0.622945,
-      "b": 1.45639,
+      "a": 0.679967,
+      "b": 1.232784,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p33056074": {
-      "a": 2.960426,
-      "b": 0.226773,
+      "a": 3.564286,
+      "b": 0.263818,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p33057187": {
-      "a": 2.41892,
-      "b": 1.119374,
+      "a": 2.685606,
+      "b": 1.099103,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p33089137": {
-      "a": 0.762215,
-      "b": -1.984446,
+      "a": 0.797113,
+      "b": -1.518271,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p33114371": {
-      "a": 0.695693,
-      "b": -2.755438,
+      "a": 0.670601,
+      "b": -1.861266,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p33166937": {
-      "a": 0.724093,
-      "b": -3.494259,
+      "a": 0.733587,
+      "b": -2.443374,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p33344791": {
-      "a": 0.432155,
-      "b": 1.132097,
+      "a": 0.49295,
+      "b": 1.060046,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p33705422": {
-      "a": 0.881134,
-      "b": -1.989734,
+      "a": 0.783283,
+      "b": -1.611324,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p33940796": {
-      "a": 0.682638,
-      "b": -0.330166,
+      "a": 0.676843,
+      "b": 1.53879,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p33977401": {
-      "a": 0.536344,
-      "b": 13.073294,
+      "a": 0.602819,
+      "b": 11.609389,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p33994529": {
-      "a": 2.902228,
-      "b": 0.063045,
+      "a": 3.345166,
+      "b": 0.193464,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p34073318": {
-      "a": 0.534622,
-      "b": 13.132295,
+      "a": 0.648554,
+      "b": -2.034351,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p34078838": {
-      "a": 1.200192,
-      "b": -0.636984,
+      "a": 1.148994,
+      "b": -0.45256,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p34436036": {
-      "a": 0.527093,
-      "b": 6.354264,
+      "a": 0.639725,
+      "b": 4.734096,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p34596259": {
-      "a": 1.232859,
-      "b": -1.305302,
+      "a": 1.094155,
+      "b": -0.890986,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p34687537": {
-      "a": 0.927144,
-      "b": 1.235824,
+      "a": 0.906492,
+      "b": 0.702454,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p34760167": {
-      "a": 1.920946,
-      "b": 2.264427,
+      "a": 1.630667,
+      "b": 3.138562,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p34929422": {
-      "a": 1.748773,
-      "b": 1.28746,
+      "a": 1.545777,
+      "b": 1.11823,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p35048330": {
-      "a": 1.309699,
-      "b": -3.642372,
+      "a": 1.082965,
+      "b": -3.086272,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p35372141": {
-      "a": 0.851237,
-      "b": 6.808303,
+      "a": 0.912701,
+      "b": 6.381892,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p35443451": {
-      "a": 3.68674,
-      "b": 0.354443,
+      "a": 3.581058,
+      "b": 0.353654,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p35506203": {
-      "a": 0.64771,
-      "b": 1.650328,
+      "a": 0.74127,
+      "b": 1.438562,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p35535891": {
-      "a": 0.85918,
-      "b": -4.183125,
+      "a": 0.882432,
+      "b": -2.416349,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p35556752": {
-      "a": 0.465489,
-      "b": -1.575781,
+      "a": 0.562757,
+      "b": -1.141771,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p35624528": {
-      "a": 1.864535,
-      "b": -2.773839,
+      "a": 2.019557,
+      "b": -2.320865,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p35802646": {
-      "a": 0.536152,
-      "b": 1.812674,
+      "a": 0.574101,
+      "b": 1.468124,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p35941059": {
-      "a": 0.860123,
-      "b": 2.613984,
+      "a": 0.802711,
+      "b": 1.470731,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p35958640": {
-      "a": 0.674605,
-      "b": 1.75146,
+      "a": 0.72397,
+      "b": 2.362807,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p36038058": {
-      "a": 1.219448,
-      "b": 4.395448,
+      "a": 1.534285,
+      "b": 3.426664,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p36050612": {
-      "a": 2.375442,
-      "b": -0.686639,
+      "a": 2.038877,
+      "b": -0.165354,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p36173302": {
-      "a": 1.172858,
-      "b": -0.248039,
+      "a": 1.187252,
+      "b": -0.197291,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p36215511": {
-      "a": 2.237335,
-      "b": 0.2601,
+      "a": 0.913993,
+      "b": -1.089014,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p36634457": {
-      "a": 1.352563,
-      "b": -1.488006,
+      "a": 0.805466,
+      "b": -0.846687,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p37005267": {
-      "a": 0.967436,
-      "b": -0.980657,
+      "a": 0.862637,
+      "b": -0.544596,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p37055411": {
-      "a": 0.537737,
-      "b": -2.398286,
+      "a": 0.669995,
+      "b": -2.245412,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p37086868": {
-      "a": 1.076296,
-      "b": -4.83603,
+      "a": 0.886716,
+      "b": -3.220104,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p37643915": {
-      "a": 0.549917,
-      "b": -12.109827,
+      "a": 0.58584,
+      "b": -7.103332,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p37695876": {
-      "a": 1.092152,
-      "b": -0.61341,
+      "a": 0.973677,
+      "b": -0.547521,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p37749308": {
-      "a": 0.534622,
-      "b": 13.132295,
+      "a": 0.591941,
+      "b": -1.395953,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p38488622": {
-      "a": 0.477816,
-      "b": 13.657283,
+      "a": 0.527513,
+      "b": 12.372899,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p38792429": {
-      "a": 0.878988,
-      "b": -3.244508,
+      "a": 0.730197,
+      "b": -1.5143,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p39017990": {
-      "a": 0.59647,
-      "b": -0.106619,
+      "a": 0.616968,
+      "b": 0.167979,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p39060145": {
-      "a": 0.447922,
-      "b": -0.157916,
+      "a": 0.474495,
+      "b": 0.828448,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p39075438": {
-      "a": 0.848489,
-      "b": 0.124677,
+      "a": 0.820161,
+      "b": 0.619347,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p39273515": {
-      "a": 2.962208,
-      "b": 0.112836,
+      "a": 3.276136,
+      "b": 0.22608,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p39376805": {
-      "a": 0.482945,
-      "b": 14.271577,
+      "a": 0.543205,
+      "b": 12.688995,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p39456652": {
-      "a": 1.605908,
-      "b": 3.232636,
+      "a": 2.411097,
+      "b": 1.640624,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p39539572": {
-      "a": 0.482868,
-      "b": 13.893532,
+      "a": 0.550597,
+      "b": 10.186747,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p39728588": {
-      "a": 0.664912,
-      "b": 3.615893,
+      "a": 0.715762,
+      "b": 5.289334,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p39771763": {
-      "a": 3.219312,
-      "b": -0.107641,
+      "a": 3.540395,
+      "b": -0.003929,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p40038820": {
-      "a": 0.98718,
-      "b": -0.35999,
+      "a": 0.732009,
+      "b": 0.074989,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p40149058": {
-      "a": 0.489289,
-      "b": 13.19319,
+      "a": 0.582305,
+      "b": 10.862975,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p40190227": {
-      "a": 1.759654,
-      "b": -1.791596,
+      "a": 1.250998,
+      "b": -1.587012,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p40488769": {
-      "a": 2.115944,
-      "b": -0.224767,
+      "a": 2.644531,
+      "b": -0.084976,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p40554392": {
-      "a": 0.53815,
-      "b": -1.903609,
+      "a": 0.627358,
+      "b": -1.237852,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p40590335": {
-      "a": 0.616862,
-      "b": 0.13901,
+      "a": 0.664499,
+      "b": -0.009205,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p40692515": {
-      "a": 1.507125,
-      "b": -0.01871,
+      "a": 1.249577,
+      "b": 0.20477,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p41077698": {
-      "a": 1.079742,
-      "b": -4.959058,
+      "a": 0.848046,
+      "b": -3.692046,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p41449666": {
-      "a": 1.201703,
-      "b": -4.555478,
+      "a": 0.779212,
+      "b": -2.879186,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p41463513": {
-      "a": 0.553846,
-      "b": 9.772081,
+      "a": 0.674507,
+      "b": 9.0222,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p41480868": {
-      "a": 0.603459,
-      "b": 1.095265,
+      "a": 0.655102,
+      "b": 1.339539,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p41602630": {
-      "a": 0.769965,
-      "b": -7.814276,
+      "a": 0.851594,
+      "b": -5.472671,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p41921098": {
-      "a": 0.725675,
-      "b": 0.739454,
+      "a": 0.753355,
+      "b": 0.722923,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p41979520": {
-      "a": 0.765627,
-      "b": 1.14056,
+      "a": 0.804047,
+      "b": 0.893388,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p42217928": {
-      "a": 1.934634,
-      "b": 2.319765,
+      "a": 2.180454,
+      "b": 2.029114,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p42531804": {
-      "a": 3.323001,
-      "b": -0.158227,
+      "a": 3.605114,
+      "b": -0.010593,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p42817284": {
-      "a": 1.529012,
-      "b": -3.21197,
+      "a": 1.49235,
+      "b": -2.474921,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p42968116": {
-      "a": 0.565931,
-      "b": 3.832458,
+      "a": 0.600957,
+      "b": 3.675249,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p43138831": {
-      "a": 0.863334,
-      "b": -0.136911,
+      "a": 0.742965,
+      "b": -1.05833,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p43225031": {
-      "a": 0.675048,
-      "b": 3.464893,
+      "a": 0.739851,
+      "b": 3.441674,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p43384246": {
-      "a": 0.602433,
-      "b": -10.994361,
+      "a": 0.627577,
+      "b": -6.481513,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p43482920": {
-      "a": 0.60667,
-      "b": -1.04113,
+      "a": 0.643286,
+      "b": 0.879601,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p43814553": {
-      "a": 3.290171,
-      "b": 0.589429,
+      "a": 3.078425,
+      "b": 0.659534,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p43832714": {
-      "a": 1.291231,
-      "b": -4.545679,
+      "a": 0.936598,
+      "b": -3.533771,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p44425802": {
-      "a": 3.173313,
-      "b": -0.365186,
+      "a": 3.643364,
+      "b": -0.2318,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p44579321": {
-      "a": 0.300775,
-      "b": 18.51355,
+      "a": 0.35734,
+      "b": 13.05176,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p44671713": {
-      "a": 0.593589,
-      "b": -3.022203,
+      "a": 0.621594,
+      "b": -2.008568,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p44726763": {
-      "a": 1.455985,
-      "b": -3.419502,
+      "a": 1.313399,
+      "b": -2.510272,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p44804880": {
-      "a": 0.634157,
-      "b": -3.438436,
+      "a": 0.618971,
+      "b": -1.370879,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p44830893": {
-      "a": 1.445794,
-      "b": -2.984627,
+      "a": 1.089198,
+      "b": -2.133182,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p44937760": {
-      "a": 1.892958,
-      "b": -2.643357,
+      "a": 1.433569,
+      "b": -1.997027,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p44979040": {
-      "a": 0.94411,
-      "b": -3.681881,
+      "a": 0.750324,
+      "b": -2.13759,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p45307801": {
-      "a": 0.460712,
-      "b": 1.875586,
+      "a": 0.501489,
+      "b": 1.906369,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p45622979": {
-      "a": 3.345271,
-      "b": -0.509215,
+      "a": 3.74559,
+      "b": -0.347795,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p45646997": {
-      "a": 0.657638,
-      "b": -0.901843,
+      "a": 0.676467,
+      "b": -0.533891,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p45757220": {
-      "a": 1.258122,
-      "b": -1.256317,
+      "a": 0.87322,
+      "b": -1.632508,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p45787815": {
-      "a": 1.105838,
-      "b": -1.95867,
+      "a": 0.706596,
+      "b": -0.665474,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p45825780": {
-      "a": 0.727592,
-      "b": 4.792475,
+      "a": 0.80608,
+      "b": 3.476114,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p46639367": {
-      "a": 1.187167,
-      "b": 1.657047,
+      "a": 0.971498,
+      "b": 1.64911,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p47170495": {
-      "a": 0.54296,
-      "b": -12.36926,
+      "a": 0.611983,
+      "b": -7.455142,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p47246516": {
-      "a": 2.194722,
-      "b": 0.582754,
+      "a": 1.548968,
+      "b": 0.230129,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p47380665": {
-      "a": 0.825081,
-      "b": 3.488423,
+      "a": 0.913056,
+      "b": 2.828779,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p47880780": {
-      "a": 0.652698,
-      "b": -6.009962,
+      "a": 0.736532,
+      "b": -2.990039,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p48070277": {
-      "a": 1.196913,
-      "b": 4.520302,
+      "a": 2.010754,
+      "b": 2.391507,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p48183938": {
-      "a": 1.240267,
-      "b": -1.04254,
+      "a": 1.09874,
+      "b": -0.730422,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p48264566": {
-      "a": 3.23746,
-      "b": -0.332833,
+      "a": 3.603842,
+      "b": -0.164081,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p48783041": {
-      "a": 0.50167,
-      "b": -1.660111,
+      "a": 0.611067,
+      "b": -1.305062,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p49065332": {
-      "a": 1.147898,
-      "b": 4.748061,
+      "a": 1.428279,
+      "b": 3.818817,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p49164905": {
-      "a": 1.389137,
-      "b": -2.204126,
+      "a": 1.167081,
+      "b": -2.062639,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p49558083": {
-      "a": 0.679012,
-      "b": -1.206422,
+      "a": 0.719125,
+      "b": -0.836162,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p50375854": {
-      "a": 1.206235,
-      "b": -4.225997,
+      "a": 0.962554,
+      "b": -2.853666,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p50406325": {
-      "a": 2.990172,
-      "b": -0.610291,
+      "a": 1.952917,
+      "b": -0.166517,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p50533023": {
-      "a": 0.526484,
-      "b": 13.118643,
+      "a": 0.778797,
+      "b": -1.56847,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p50642463": {
-      "a": 0.72012,
-      "b": -4.076713,
+      "a": 0.694639,
+      "b": -2.694375,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p50731809": {
-      "a": 0.616699,
-      "b": 1.1553,
+      "a": 0.758628,
+      "b": 0.49945,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p50770373": {
-      "a": 1.069561,
-      "b": 3.560538,
+      "a": 1.367593,
+      "b": 2.992784,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p51363157": {
-      "a": 3.019416,
-      "b": -0.022456,
+      "a": 3.75127,
+      "b": 0.107531,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p51710554": {
-      "a": 0.931713,
-      "b": -1.064266,
+      "a": 0.774266,
+      "b": -0.216368,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p51834425": {
-      "a": 2.738575,
-      "b": 0.33492,
+      "a": 2.081666,
+      "b": 0.621126,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p52127064": {
-      "a": 1.554654,
-      "b": -0.855706,
+      "a": 1.2279,
+      "b": -0.561461,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p52505037": {
-      "a": 0.719678,
-      "b": 0.175248,
+      "a": 0.799884,
+      "b": 0.121446,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p52588751": {
-      "a": 0.59162,
-      "b": -1.828898,
+      "a": 0.726055,
+      "b": -0.539852,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p52592533": {
-      "a": 0.92999,
-      "b": 4.871689,
+      "a": 0.741617,
+      "b": 7.914894,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p52599782": {
-      "a": 0.545068,
-      "b": -3.271924,
+      "a": 0.603926,
+      "b": -1.836968,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p52963857": {
-      "a": 2.614888,
-      "b": 1.196082,
+      "a": 3.143808,
+      "b": 1.051455,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p53064991": {
-      "a": 0.571939,
-      "b": 7.866417,
+      "a": 0.706134,
+      "b": 6.480993,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p53175818": {
-      "a": 3.881508,
-      "b": 0.128837,
+      "a": 4.356077,
+      "b": 0.201737,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p53673629": {
-      "a": 0.691103,
-      "b": 1.171559,
+      "a": 0.740947,
+      "b": 1.069214,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p53685887": {
-      "a": 2.456908,
-      "b": -0.055308,
+      "a": 1.868595,
+      "b": -0.352655,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p53880317": {
-      "a": 0.837623,
-      "b": -0.931003,
+      "a": 0.875749,
+      "b": -0.400652,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p54026758": {
-      "a": 1.057141,
-      "b": -0.434925,
+      "a": 0.998202,
+      "b": -0.347748,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p54121096": {
-      "a": 0.557677,
-      "b": 2.580676,
+      "a": 0.818667,
+      "b": 1.028279,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p54266535": {
-      "a": 1.84842,
-      "b": -2.016134,
+      "a": 1.670425,
+      "b": -1.542544,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p54292068": {
-      "a": 3.445598,
-      "b": 0.384602,
+      "a": 3.827554,
+      "b": 0.497304,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p54305674": {
-      "a": 1.328651,
-      "b": -3.09377,
+      "a": 0.901702,
+      "b": -1.816375,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p54413137": {
-      "a": 0.708591,
-      "b": 8.482611,
+      "a": 0.781765,
+      "b": 7.671154,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p54577895": {
-      "a": 1.609693,
-      "b": 0.114706,
+      "a": 1.519755,
+      "b": -0.362787,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p54614492": {
-      "a": 0.956374,
-      "b": -3.545151,
+      "a": 0.866575,
+      "b": -2.422181,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p54961241": {
-      "a": 2.317899,
-      "b": -1.410474,
+      "a": 1.589201,
+      "b": -1.111174,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p54974070": {
-      "a": 1.913834,
-      "b": -1.19544,
+      "a": 1.727614,
+      "b": -0.427885,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p55447174": {
-      "a": 0.562854,
-      "b": 12.085478,
+      "a": 0.657985,
+      "b": 9.126898,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p55493406": {
-      "a": 2.935019,
-      "b": 1.076978,
+      "a": 3.251986,
+      "b": 0.996331,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p55859645": {
-      "a": 1.690846,
-      "b": 0.295084,
+      "a": 1.737955,
+      "b": 0.448183,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p56475149": {
-      "a": 2.67915,
-      "b": 0.134581,
+      "a": 3.247009,
+      "b": 0.239808,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p56668963": {
-      "a": 0.906979,
-      "b": -1.405924,
+      "a": 1.058658,
+      "b": -0.921924,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p56712436": {
-      "a": 0.99466,
-      "b": -1.321969,
+      "a": 0.713204,
+      "b": -0.305495,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p56803953": {
-      "a": 0.99674,
-      "b": -4.764037,
+      "a": 0.855087,
+      "b": -3.764649,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p56975591": {
-      "a": 1.910466,
-      "b": 0.357273,
+      "a": 1.717755,
+      "b": 1.263044,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p57613513": {
-      "a": 0.541548,
-      "b": 1.306665,
+      "a": 0.659913,
+      "b": 0.717012,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p57677924": {
-      "a": 0.622836,
-      "b": -9.719078,
+      "a": 0.638772,
+      "b": -6.023728,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p58529238": {
-      "a": 0.481361,
-      "b": 0.882163,
+      "a": 0.569972,
+      "b": 0.443923,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p58674837": {
-      "a": 0.731487,
-      "b": 1.461512,
+      "a": 0.779685,
+      "b": 0.919753,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p58756531": {
-      "a": 2.608395,
-      "b": 0.237516,
+      "a": 1.735981,
+      "b": 0.11853,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p59125855": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.540448,
+      "b": 12.774131,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p59219443": {
-      "a": 0.732893,
-      "b": -0.283247,
+      "a": 0.682721,
+      "b": -1.351327,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p59261146": {
-      "a": 2.690607,
-      "b": 0.482481,
+      "a": 2.941918,
+      "b": 0.638207,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p59526757": {
-      "a": 1.366496,
-      "b": -2.321331,
+      "a": 0.988741,
+      "b": -1.529745,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p59694307": {
-      "a": 1.206383,
-      "b": -0.295266,
+      "a": 0.850161,
+      "b": -0.864093,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p59788074": {
-      "a": 0.491688,
-      "b": -1.561395,
+      "a": 0.553715,
+      "b": -0.900854,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p59858359": {
-      "a": 1.0307,
-      "b": 0.054319,
+      "a": 0.920862,
+      "b": 0.14457,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p59941218": {
-      "a": 0.672569,
-      "b": 8.647811,
+      "a": 0.750639,
+      "b": 7.735169,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p59944027": {
-      "a": 0.921963,
-      "b": 2.005363,
+      "a": 0.742424,
+      "b": 1.956005,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p60030075": {
-      "a": 0.807303,
-      "b": -2.329483,
+      "a": 0.867378,
+      "b": -1.654172,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p60132976": {
-      "a": 2.032245,
-      "b": 1.867803,
+      "a": 2.402611,
+      "b": 1.593272,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p60152012": {
-      "a": 1.066173,
-      "b": 5.037978,
+      "a": 1.113333,
+      "b": 4.884475,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p60313601": {
-      "a": 0.944346,
-      "b": 0.190535,
+      "a": 0.712544,
+      "b": -0.175104,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p60314843": {
-      "a": 0.968984,
-      "b": -1.539274,
+      "a": 0.994938,
+      "b": -0.884569,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p60989554": {
-      "a": 0.722771,
-      "b": 8.697568,
+      "a": 0.825546,
+      "b": 7.790941,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p61103615": {
-      "a": 2.867922,
-      "b": -0.285062,
+      "a": 3.682094,
+      "b": -0.267013,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p61135395": {
-      "a": 1.437219,
-      "b": -2.403685,
+      "a": 1.317,
+      "b": -2.727349,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p61493888": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.540448,
+      "b": 12.774131,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p61614492": {
-      "a": 1.221803,
-      "b": -0.6697,
+      "a": 1.068243,
+      "b": 0.013123,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p62193951": {
-      "a": 0.353629,
-      "b": 15.201717,
+      "a": 0.399544,
+      "b": 13.258001,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p62197269": {
-      "a": 0.438483,
-      "b": -2.587625,
+      "a": 0.569251,
+      "b": -0.739402,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p62393884": {
-      "a": 2.444335,
-      "b": -1.534175,
+      "a": 2.724017,
+      "b": -1.059594,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p62857090": {
-      "a": 0.529514,
-      "b": 5.382472,
+      "a": 0.605857,
+      "b": 3.033371,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p62943796": {
-      "a": 0.608946,
-      "b": -10.831645,
+      "a": 0.59527,
+      "b": -6.064512,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p63106298": {
-      "a": 1.377453,
-      "b": -0.945172,
+      "a": 1.233327,
+      "b": -0.627941,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p63674956": {
-      "a": 0.570777,
-      "b": -1.872475,
+      "a": 0.7279,
+      "b": -1.157856,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p63818899": {
-      "a": 0.690785,
-      "b": -2.702782,
+      "a": 0.669423,
+      "b": -2.029796,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p63891933": {
-      "a": 0.444633,
-      "b": 1.022798,
+      "a": 0.560706,
+      "b": 1.569558,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p64029850": {
-      "a": 0.86081,
-      "b": -2.138916,
+      "a": 0.773317,
+      "b": -1.279661,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p64126321": {
-      "a": 3.573636,
-      "b": -0.088483,
+      "a": 4.26268,
+      "b": 0.028409,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p64315793": {
-      "a": 0.764869,
-      "b": 0.56618,
+      "a": 0.774599,
+      "b": -0.788903,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p64433356": {
-      "a": 0.927312,
-      "b": -4.274408,
+      "a": 0.762836,
+      "b": -2.770232,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p64727792": {
-      "a": 0.874865,
-      "b": -5.783762,
+      "a": 0.834836,
+      "b": -4.146186,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p65291915": {
-      "a": 1.262269,
-      "b": -2.986784,
+      "a": 0.989161,
+      "b": -1.940058,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p65358272": {
-      "a": 0.777862,
-      "b": -0.797473,
+      "a": 0.79559,
+      "b": -0.445671,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p65697562": {
-      "a": 2.559492,
-      "b": 0.347168,
+      "a": 3.039846,
+      "b": 0.34853,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p65714558": {
-      "a": 0.542174,
-      "b": 4.92556,
+      "a": 0.620766,
+      "b": 3.533029,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p65844740": {
-      "a": 1.281306,
-      "b": -0.024662,
+      "a": 1.25038,
+      "b": 0.098593,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p65848928": {
-      "a": 0.534622,
-      "b": 13.132295,
+      "a": 0.604065,
+      "b": 11.347926,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p65906100": {
-      "a": 0.569057,
-      "b": 9.633992,
+      "a": 0.69052,
+      "b": 7.907786,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p65920956": {
-      "a": 0.82127,
-      "b": -0.879319,
+      "a": 0.961922,
+      "b": -0.360928,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p65936341": {
-      "a": 1.597406,
-      "b": -1.468817,
+      "a": 0.998704,
+      "b": -1.00647,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p66288924": {
-      "a": 1.675159,
-      "b": 0.035166,
+      "a": 1.13768,
+      "b": -0.680314,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p66327811": {
-      "a": 0.666809,
-      "b": -9.378953,
+      "a": 0.789725,
+      "b": -4.2164,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p66402984": {
-      "a": 0.506128,
-      "b": 13.47224,
+      "a": 0.592891,
+      "b": 4.642344,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p66451311": {
-      "a": 1.263931,
-      "b": -0.915996,
+      "a": 1.226268,
+      "b": -0.656341,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p66671869": {
-      "a": 0.831592,
-      "b": -0.126757,
+      "a": 0.926775,
+      "b": 0.157916,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p67108803": {
-      "a": 0.401527,
-      "b": -1.036062,
+      "a": 0.474586,
+      "b": -0.313783,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p67127077": {
-      "a": 1.371185,
-      "b": -1.335323,
+      "a": 1.278173,
+      "b": -0.965445,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p67163711": {
-      "a": 0.618538,
-      "b": 2.270949,
+      "a": 0.599514,
+      "b": 1.926949,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p67322129": {
-      "a": 1.466473,
-      "b": -1.761205,
+      "a": 1.196212,
+      "b": -1.326692,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p68020327": {
-      "a": 1.043279,
-      "b": -2.519086,
+      "a": 0.775265,
+      "b": -1.703603,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p68642263": {
-      "a": 3.400164,
-      "b": 0.326576,
+      "a": 3.892514,
+      "b": 0.33305,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p68754790": {
-      "a": 0.898936,
-      "b": -6.059634,
+      "a": 0.766487,
+      "b": -2.955943,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p69120010": {
-      "a": 0.744467,
-      "b": 0.622352,
+      "a": 0.773964,
+      "b": -0.555662,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p69314208": {
-      "a": 1.128601,
-      "b": -2.510481,
+      "a": 0.943459,
+      "b": -1.337165,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p69379021": {
-      "a": 2.26418,
-      "b": 1.526696,
+      "a": 1.821328,
+      "b": 1.753092,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p70053806": {
-      "a": 0.562013,
-      "b": -2.15392,
+      "a": 0.581786,
+      "b": -1.316409,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p70075144": {
-      "a": 2.727192,
-      "b": -0.066434,
+      "a": 2.643694,
+      "b": 0.376175,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p70202923": {
-      "a": 0.915474,
-      "b": -2.918535,
+      "a": 0.785104,
+      "b": -2.430017,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p70540996": {
-      "a": 0.710651,
-      "b": -0.811109,
+      "a": 0.728237,
+      "b": -0.632877,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p70605623": {
-      "a": 0.532497,
-      "b": 7.424371,
+      "a": 0.57456,
+      "b": 6.759995,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p70733798": {
-      "a": 0.728466,
-      "b": 0.575301,
+      "a": 0.783203,
+      "b": 0.634696,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p70805085": {
-      "a": 1.146297,
-      "b": -1.846621,
+      "a": 1.067323,
+      "b": -1.492481,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p71172678": {
-      "a": 1.246227,
-      "b": -1.18789,
+      "a": 1.525376,
+      "b": -0.940859,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p71334131": {
-      "a": 2.855401,
-      "b": 0.914347,
+      "a": 3.413325,
+      "b": 0.81118,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p71439558": {
-      "a": 0.655946,
-      "b": -2.956123,
+      "a": 0.689616,
+      "b": -1.94986,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p71501682": {
-      "a": 2.82481,
-      "b": 0.77223,
+      "a": 3.241315,
+      "b": 0.720919,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p71541833": {
-      "a": 0.654166,
-      "b": 0.171783,
+      "a": 0.685706,
+      "b": 0.32679,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p71592616": {
-      "a": 2.222007,
-      "b": -0.184785,
+      "a": 2.228398,
+      "b": -0.336261,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p71946164": {
-      "a": 0.830153,
-      "b": -5.788663,
+      "a": 0.837846,
+      "b": -3.826871,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p72055079": {
-      "a": 0.65397,
-      "b": -2.780163,
+      "a": 0.681331,
+      "b": -1.590952,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p72288363": {
-      "a": 3.783716,
-      "b": -0.419656,
+      "a": 4.21785,
+      "b": -0.248508,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p72353877": {
-      "a": 1.904966,
-      "b": -1.104664,
+      "a": 1.563466,
+      "b": -0.804814,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p72394686": {
-      "a": 0.738126,
-      "b": -2.847804,
+      "a": 0.680466,
+      "b": -1.452175,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p72503376": {
-      "a": 0.53016,
-      "b": 12.769897,
+      "a": 0.628301,
+      "b": 10.691766,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p72567775": {
-      "a": 0.996117,
-      "b": -1.446209,
+      "a": 0.867424,
+      "b": -0.978991,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p72655132": {
-      "a": 1.228687,
-      "b": -0.673447,
+      "a": 0.976115,
+      "b": -0.290085,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p72780878": {
-      "a": 0.83691,
-      "b": -1.398922,
+      "a": 0.695383,
+      "b": -0.7013,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p72919379": {
-      "a": 2.194028,
-      "b": -1.17312,
+      "a": 1.739468,
+      "b": -0.862363,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p72962648": {
-      "a": 1.334902,
-      "b": -1.351016,
+      "a": 1.247229,
+      "b": -1.105257,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p73024049": {
-      "a": 0.559462,
-      "b": 11.434622,
+      "a": 0.619894,
+      "b": 10.325005,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p73275041": {
-      "a": 1.270657,
-      "b": -0.740326,
+      "a": 1.182648,
+      "b": -0.38724,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p73349726": {
-      "a": 0.685426,
-      "b": -2.152768,
+      "a": 0.703112,
+      "b": -1.537018,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p73464338": {
-      "a": 0.775733,
-      "b": 0.479449,
+      "a": 1.01836,
+      "b": 0.010461,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p73555608": {
-      "a": 0.715621,
-      "b": -8.892828,
+      "a": 0.637719,
+      "b": -5.524121,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p73582679": {
-      "a": 1.196452,
-      "b": -4.848245,
+      "a": 0.837089,
+      "b": -3.330471,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p73761128": {
-      "a": 0.579907,
-      "b": -11.336426,
+      "a": 0.61423,
+      "b": -6.583259,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p73856309": {
-      "a": 1.637246,
-      "b": -2.384426,
+      "a": 1.313995,
+      "b": -1.733508,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p73935735": {
-      "a": 1.454915,
-      "b": -3.263974,
+      "a": 1.192541,
+      "b": -2.063646,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p74333566": {
-      "a": 1.288477,
-      "b": -1.832062,
+      "a": 1.028963,
+      "b": -1.445348,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p74411902": {
-      "a": 0.802307,
-      "b": 0.964339,
+      "a": 0.761197,
+      "b": 1.198927,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p74606593": {
-      "a": 2.656458,
-      "b": 0.075545,
+      "a": 3.544204,
+      "b": -0.052506,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p74703041": {
-      "a": 2.503727,
-      "b": -1.041987,
+      "a": 1.72473,
+      "b": -0.609202,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p74768442": {
-      "a": 0.621261,
-      "b": 1.508746,
+      "a": 0.593434,
+      "b": 1.378997,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p74954529": {
-      "a": 0.548282,
-      "b": 7.846135,
+      "a": 0.672649,
+      "b": 6.511523,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p74994040": {
-      "a": 0.777594,
-      "b": 2.147751,
+      "a": 0.728764,
+      "b": 1.354849,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p75155159": {
-      "a": 0.584133,
-      "b": -0.282743,
+      "a": 0.61583,
+      "b": -0.005656,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p75519535": {
-      "a": 0.555554,
-      "b": -1.288412,
+      "a": 0.610405,
+      "b": -0.821156,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p76059564": {
-      "a": 0.982572,
-      "b": 0.545993,
+      "a": 0.844068,
+      "b": 0.338698,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p76171983": {
-      "a": 0.610158,
-      "b": -1.504729,
+      "a": 0.661012,
+      "b": -1.186699,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p76336772": {
-      "a": 0.643071,
-      "b": -2.088039,
+      "a": 0.676975,
+      "b": -1.356938,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p76419248": {
-      "a": 0.522935,
-      "b": -0.976806,
+      "a": 0.575341,
+      "b": -0.099725,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p76466856": {
-      "a": 0.690521,
-      "b": -9.284606,
+      "a": 0.718007,
+      "b": -5.707711,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p76549547": {
-      "a": 1.329998,
-      "b": -1.145083,
+      "a": 1.131787,
+      "b": -0.802678,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p76597461": {
-      "a": 0.495168,
-      "b": 13.784896,
+      "a": 0.584046,
+      "b": 11.536497,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p76737900": {
-      "a": 0.399302,
-      "b": -0.548069,
+      "a": 0.488275,
+      "b": -0.263191,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p77204968": {
-      "a": 0.96494,
-      "b": -0.128308,
+      "a": 0.932415,
+      "b": 0.194856,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p77228494": {
-      "a": 1.068835,
-      "b": -3.424084,
+      "a": 0.882856,
+      "b": -2.569533,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p77241402": {
-      "a": 1.454705,
-      "b": 0.59593,
+      "a": 1.372315,
+      "b": 0.714032,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p77495683": {
-      "a": 0.4603,
-      "b": 0.714194,
+      "a": 0.562075,
+      "b": 0.84617,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p77514402": {
-      "a": 0.630927,
-      "b": -2.937167,
+      "a": 0.653296,
+      "b": -2.152469,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p78068663": {
-      "a": 0.915297,
-      "b": -0.158383,
+      "a": 0.904743,
+      "b": 0.265517,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p78126560": {
-      "a": 1.213095,
-      "b": -2.402801,
+      "a": 0.951202,
+      "b": -1.591723,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p78281923": {
-      "a": 2.22131,
-      "b": -0.010062,
+      "a": 2.182227,
+      "b": 0.505871,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p78287791": {
-      "a": 1.553232,
-      "b": -2.038103,
+      "a": 1.098481,
+      "b": -1.568518,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p78488082": {
-      "a": 0.533904,
-      "b": -12.721793,
+      "a": 0.612818,
+      "b": -8.58913,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p78839341": {
-      "a": 1.352026,
-      "b": 1.613281,
+      "a": 0.934859,
+      "b": 2.194549,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p78889357": {
-      "a": 1.047974,
-      "b": -3.363551,
+      "a": 0.842831,
+      "b": -2.755532,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p78890125": {
-      "a": 2.127529,
-      "b": -0.722887,
+      "a": 1.760654,
+      "b": -0.48781,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p78893283": {
-      "a": 0.538452,
-      "b": -2.689887,
+      "a": 0.654428,
+      "b": -2.285831,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p79063717": {
-      "a": 0.813846,
-      "b": -0.979007,
+      "a": 1.034489,
+      "b": -0.816601,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p79209057": {
-      "a": 0.441821,
-      "b": 15.130634,
+      "a": 0.505894,
+      "b": 13.007685,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p79314314": {
-      "a": 1.525673,
-      "b": -0.736833,
+      "a": 1.206884,
+      "b": -0.458048,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p79379544": {
-      "a": 1.347539,
-      "b": -1.534629,
+      "a": 1.088451,
+      "b": -0.964565,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p79463146": {
-      "a": 0.773147,
-      "b": -1.241714,
+      "a": 0.866109,
+      "b": -0.780875,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p79469005": {
-      "a": 1.366274,
-      "b": -1.947762,
+      "a": 1.125082,
+      "b": -1.456641,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p79487111": {
-      "a": 0.591387,
-      "b": -1.036698,
+      "a": 0.744807,
+      "b": -0.389134,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p79592509": {
-      "a": 0.937946,
-      "b": 2.782951,
+      "a": 1.094002,
+      "b": 2.495682,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p79766329": {
-      "a": 0.934491,
-      "b": -2.463069,
+      "a": 0.889701,
+      "b": -1.666388,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p79781431": {
-      "a": 0.684802,
-      "b": -2.411581,
+      "a": 0.693962,
+      "b": -1.722354,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p79794870": {
-      "a": 0.914013,
-      "b": 2.312998,
+      "a": 0.634799,
+      "b": 1.364832,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p79830542": {
-      "a": 1.868056,
-      "b": 0.093991,
+      "a": 1.730639,
+      "b": 0.221112,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p79865961": {
-      "a": 1.228757,
-      "b": -3.413217,
+      "a": 0.919512,
+      "b": -2.491912,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p79873146": {
-      "a": 0.703563,
-      "b": -1.356278,
+      "a": 0.771312,
+      "b": -0.829695,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p79891569": {
-      "a": 0.964954,
-      "b": -1.128185,
+      "a": 0.809094,
+      "b": -0.388561,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p80152881": {
-      "a": 0.447511,
-      "b": 10.479419,
+      "a": 0.528655,
+      "b": 9.038797,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p80541626": {
-      "a": 0.548621,
-      "b": 7.554871,
+      "a": 0.591873,
+      "b": 7.047947,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p81058169": {
-      "a": 3.327776,
-      "b": 0.057429,
+      "a": 3.700958,
+      "b": 0.146725,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p81131614": {
-      "a": 1.020874,
-      "b": -2.893236,
+      "a": 0.773837,
+      "b": -1.969851,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p81162057": {
-      "a": 0.438878,
-      "b": 10.511649,
+      "a": 3.757165,
+      "b": -0.636719,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p81241362": {
-      "a": 1.251909,
-      "b": -0.714522,
+      "a": 1.003552,
+      "b": -0.456562,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p81243654": {
-      "a": 0.602739,
-      "b": -3.221804,
+      "a": 0.644659,
+      "b": -2.373352,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p81293639": {
-      "a": 0.539187,
-      "b": -1.105602,
+      "a": 0.611458,
+      "b": -0.59748,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p81480098": {
-      "a": 0.761631,
-      "b": -1.660142,
+      "a": 0.783279,
+      "b": -0.845872,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p81493725": {
-      "a": 2.217038,
-      "b": 0.664955,
+      "a": 1.897088,
+      "b": 0.592646,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p81567995": {
-      "a": 2.443523,
-      "b": 1.423774,
+      "a": 2.930361,
+      "b": 0.836514,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p81615649": {
-      "a": 0.489123,
-      "b": 1.603858,
+      "a": 0.542863,
+      "b": 1.2591,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p81649801": {
-      "a": 0.478722,
-      "b": 14.122451,
+      "a": 0.541093,
+      "b": 12.56195,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p81747198": {
-      "a": 0.510928,
-      "b": 13.311745,
+      "a": 0.584738,
+      "b": 11.595448,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p81932044": {
-      "a": 0.695168,
-      "b": -0.107422,
+      "a": 0.723035,
+      "b": 0.522044,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p82131387": {
-      "a": 1.319427,
-      "b": -1.979529,
+      "a": 1.246604,
+      "b": -1.749897,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p82196814": {
-      "a": 1.688407,
-      "b": -1.223245,
+      "a": 1.360044,
+      "b": -0.964086,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p82215419": {
-      "a": 0.519324,
-      "b": 1.352407,
+      "a": 0.591249,
+      "b": 1.377104,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p82713293": {
-      "a": 1.1971,
-      "b": 2.094129,
+      "a": 1.229482,
+      "b": 3.017373,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p83034672": {
-      "a": 0.479783,
-      "b": 14.392352,
+      "a": 0.835029,
+      "b": 0.804084,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p83260041": {
-      "a": 0.596653,
-      "b": -2.655545,
+      "a": 0.682503,
+      "b": -1.096881,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p83277699": {
-      "a": 0.585615,
-      "b": -10.763887,
+      "a": 0.617745,
+      "b": -6.397677,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p83432347": {
-      "a": 1.007214,
-      "b": 0.835455,
+      "a": 0.891161,
+      "b": -0.614195,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p83465873": {
-      "a": 0.820822,
-      "b": 0.629373,
+      "a": 0.931356,
+      "b": 0.469771,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p83567298": {
-      "a": 0.615986,
-      "b": -0.425523,
+      "a": 0.87395,
+      "b": -0.404718,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p83643705": {
-      "a": 1.866146,
-      "b": 0.387683,
+      "a": 1.188824,
+      "b": -0.01665,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p83652777": {
-      "a": 0.51575,
-      "b": 13.298179,
+      "a": 0.586228,
+      "b": 11.683954,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p83683771": {
-      "a": 0.766747,
-      "b": 1.9144,
+      "a": 0.651568,
+      "b": 1.550136,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p83695861": {
-      "a": 0.815596,
-      "b": -1.253481,
+      "a": 0.746787,
+      "b": -0.641988,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p83748672": {
-      "a": 0.534622,
-      "b": 13.132295,
+      "a": 0.615804,
+      "b": 11.233665,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p83989876": {
-      "a": 0.982064,
-      "b": 2.259102,
+      "a": 1.117351,
+      "b": 1.649839,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p83998022": {
-      "a": 1.210785,
-      "b": 4.161563,
+      "a": 1.844796,
+      "b": 2.497116,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p84121861": {
-      "a": 1.091163,
-      "b": 0.515526,
+      "a": 2.983831,
+      "b": 0.288535,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p84604415": {
-      "a": 1.487968,
-      "b": -1.008878,
+      "a": 1.101685,
+      "b": -0.524856,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p84749367": {
-      "a": 1.338871,
-      "b": 2.54935,
+      "a": 4.032399,
+      "b": -0.050377,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p84789821": {
-      "a": 3.120799,
-      "b": -1.092276,
+      "a": 3.574846,
+      "b": -0.773254,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p85016316": {
-      "a": 0.583963,
-      "b": -11.084889,
+      "a": 0.663716,
+      "b": -5.017488,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p85203110": {
-      "a": 1.158831,
-      "b": 4.760554,
+      "a": 1.275567,
+      "b": 3.405599,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p85239032": {
-      "a": 0.966409,
-      "b": -1.122824,
+      "a": 0.880441,
+      "b": -0.796143,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p85317234": {
-      "a": 2.056995,
-      "b": -0.007228,
+      "a": 1.828425,
+      "b": 0.095802,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p85613714": {
-      "a": 1.435694,
-      "b": -0.900351,
+      "a": 1.142143,
+      "b": -0.357679,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p85976498": {
-      "a": 0.515458,
-      "b": -1.531403,
+      "a": 0.550438,
+      "b": -2.86051,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p86005237": {
-      "a": 1.133924,
-      "b": 3.777611,
+      "a": 1.179742,
+      "b": 4.291949,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p86248813": {
-      "a": 2.997853,
-      "b": 0.902788,
+      "a": 3.468776,
+      "b": 0.836523,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p87012890": {
-      "a": 1.189219,
-      "b": -2.619877,
+      "a": 0.862078,
+      "b": -1.727225,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p87284105": {
-      "a": 0.81364,
-      "b": -0.085891,
+      "a": 0.793195,
+      "b": -0.008026,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p87572160": {
-      "a": 0.95129,
-      "b": -1.020184,
+      "a": 0.710002,
+      "b": -2.019541,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p87628207": {
-      "a": 1.004256,
-      "b": -2.664678,
+      "a": 0.719949,
+      "b": -1.821576,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p87654014": {
-      "a": 0.534622,
-      "b": 13.132295,
+      "a": 0.730106,
+      "b": 9.498621,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p87713543": {
-      "a": 2.648412,
-      "b": -0.3607,
+      "a": 2.771502,
+      "b": -0.298849,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p87737766": {
-      "a": 0.838643,
-      "b": -0.705288,
+      "a": 0.80902,
+      "b": -0.27785,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p87994565": {
-      "a": 1.185938,
-      "b": 1.951446,
+      "a": 1.065244,
+      "b": 2.623484,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p88130703": {
-      "a": 3.783373,
-      "b": 0.634044,
+      "a": 3.402186,
+      "b": 1.007603,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p88452209": {
-      "a": 1.418542,
-      "b": 0.887039,
+      "a": 1.244588,
+      "b": 2.291088,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p88497542": {
-      "a": 1.752602,
-      "b": 2.568226,
+      "a": 2.060354,
+      "b": 1.735712,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p89133035": {
-      "a": 3.435904,
-      "b": -0.117332,
+      "a": 3.631795,
+      "b": 0.172628,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p89191785": {
-      "a": 0.757225,
-      "b": -0.311817,
+      "a": 0.833521,
+      "b": -0.083467,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p89252510": {
-      "a": 0.648392,
-      "b": -1.660629,
+      "a": 0.630672,
+      "b": -0.146201,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p89586268": {
-      "a": 0.779614,
-      "b": -3.104221,
+      "a": 0.773146,
+      "b": -2.396896,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p89778503": {
-      "a": 1.102621,
-      "b": 0.358417,
+      "a": 1.156762,
+      "b": 0.402334,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p89804864": {
-      "a": 2.166735,
-      "b": -1.393426,
+      "a": 1.963564,
+      "b": -0.812112,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p89947464": {
-      "a": 1.664807,
-      "b": -1.349731,
+      "a": 1.176945,
+      "b": -0.878844,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p90001261": {
-      "a": 1.596933,
-      "b": -1.481102,
+      "a": 1.321637,
+      "b": -1.156111,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p90067956": {
-      "a": 0.51861,
-      "b": 3.624244,
+      "a": 0.567105,
+      "b": 2.476652,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p90279818": {
-      "a": 0.530317,
-      "b": -10.635486,
+      "a": 0.632219,
+      "b": -5.400581,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p90665004": {
-      "a": 0.54151,
-      "b": -0.194535,
+      "a": 0.510134,
+      "b": 1.386948,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p90760042": {
-      "a": 1.135633,
-      "b": 0.828102,
+      "a": 1.213684,
+      "b": 0.570109,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p90848317": {
-      "a": 0.608333,
-      "b": 10.737628,
+      "a": 0.653323,
+      "b": 10.107378,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p91082112": {
-      "a": 0.84756,
-      "b": -0.629984,
+      "a": 0.785776,
+      "b": -0.411205,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p91183726": {
-      "a": 2.383358,
-      "b": -1.39616,
+      "a": 2.299662,
+      "b": -1.022249,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p91429623": {
-      "a": 0.471612,
-      "b": -2.200259,
+      "a": 0.51791,
+      "b": -2.500022,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p91437528": {
-      "a": 0.67821,
-      "b": -1.517822,
+      "a": 0.699676,
+      "b": -0.960259,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p91560254": {
-      "a": 0.983455,
-      "b": -2.601406,
+      "a": 0.894866,
+      "b": -2.004841,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p91586680": {
-      "a": 0.956732,
-      "b": 3.029226,
+      "a": 0.829209,
+      "b": -1.528269,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p91979855": {
-      "a": 0.760221,
-      "b": -1.159803,
+      "a": 0.790596,
+      "b": -0.794659,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p92010053": {
-      "a": 0.494465,
-      "b": -0.152962,
+      "a": 0.672989,
+      "b": 0.000519,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p92485297": {
-      "a": 0.522245,
-      "b": -1.288797,
+      "a": 0.582511,
+      "b": -0.526802,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p92901760": {
-      "a": 0.975575,
-      "b": -5.879318,
+      "a": 0.736725,
+      "b": -3.71799,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p92921178": {
-      "a": 0.962896,
-      "b": 6.215783,
+      "a": 1.108155,
+      "b": 5.341144,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p92943476": {
-      "a": 0.841066,
-      "b": -2.174072,
+      "a": 0.764652,
+      "b": -1.174855,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p93171165": {
-      "a": 0.844243,
-      "b": -3.475982,
+      "a": 0.778424,
+      "b": -2.194576,
       "subcategory": "LN-TR",
       "prompt_set": "public"
     },
     "p93308559": {
-      "a": 0.609642,
-      "b": -1.916498,
+      "a": 0.647702,
+      "b": -1.427684,
       "subcategory": "CT-FT",
       "prompt_set": "public"
     },
     "p93334269": {
-      "a": 1.510989,
-      "b": -1.115969,
+      "a": 0.953513,
+      "b": -0.452582,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p93505808": {
-      "a": 0.418587,
-      "b": -12.676177,
+      "a": 0.490379,
+      "b": -7.05366,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p93545904": {
-      "a": 0.541599,
-      "b": 3.052779,
+      "a": 0.611374,
+      "b": 2.117195,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p93804726": {
-      "a": 1.337888,
-      "b": -2.788487,
+      "a": 0.956167,
+      "b": -2.258356,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p93862365": {
-      "a": 0.678074,
-      "b": -1.434349,
+      "a": 0.643066,
+      "b": -0.603736,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p93947197": {
-      "a": 0.65798,
-      "b": 0.062505,
+      "a": 0.716801,
+      "b": 0.040773,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p94220894": {
-      "a": 0.579157,
-      "b": -0.93037,
+      "a": 0.63399,
+      "b": -0.486477,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p94644511": {
-      "a": 0.701303,
-      "b": -1.151694,
+      "a": 0.731934,
+      "b": -0.841497,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p94838784": {
-      "a": 1.301715,
-      "b": 1.148288,
+      "a": 0.901101,
+      "b": 0.474241,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p94976401": {
-      "a": 1.78544,
-      "b": 0.215777,
+      "a": 1.44453,
+      "b": 0.360774,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p95031488": {
-      "a": 1.174412,
-      "b": -3.633192,
+      "a": 0.895849,
+      "b": -2.642817,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p95057305": {
-      "a": 2.680458,
-      "b": 0.432119,
+      "a": 2.304771,
+      "b": 0.551436,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p95350822": {
-      "a": 0.531289,
-      "b": -1.089827,
+      "a": 0.696948,
+      "b": 1.229449,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p95614787": {
-      "a": 1.83273,
-      "b": 1.559454,
+      "a": 2.480673,
+      "b": 1.217349,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p95836209": {
-      "a": 1.578348,
-      "b": 2.787936,
+      "a": 1.936648,
+      "b": 2.234654,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p95859568": {
-      "a": 3.209791,
-      "b": 0.065352,
+      "a": 3.380354,
+      "b": -0.20248,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p96139534": {
-      "a": 2.266724,
-      "b": -0.59789,
+      "a": 2.331972,
+      "b": -0.602967,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p96361838": {
-      "a": 0.539243,
-      "b": 12.993549,
+      "a": 0.659205,
+      "b": 9.014184,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p96530180": {
-      "a": 3.69013,
-      "b": 0.115901,
+      "a": 4.293094,
+      "b": 0.150417,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p96565416": {
-      "a": 0.533485,
-      "b": 2.627074,
+      "a": 0.615728,
+      "b": 2.108042,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p96759717": {
-      "a": 1.740944,
-      "b": -1.804904,
+      "a": 1.464261,
+      "b": -1.171465,
       "subcategory": "SI-PS",
       "prompt_set": "public"
     },
     "p96876571": {
-      "a": 1.351234,
-      "b": -3.508054,
+      "a": 0.919609,
+      "b": -3.469605,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p96940983": {
-      "a": 0.533344,
-      "b": 6.947018,
+      "a": 0.616123,
+      "b": 5.3926,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p97173146": {
-      "a": 2.65086,
-      "b": -1.597707,
+      "a": 2.969882,
+      "b": -1.184713,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p97267743": {
-      "a": 1.85222,
-      "b": 2.616872,
+      "a": 3.356997,
+      "b": 1.226762,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p97297082": {
-      "a": 2.656401,
-      "b": -0.371893,
+      "a": 1.912394,
+      "b": -0.763886,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p97334022": {
-      "a": 0.663493,
-      "b": 4.438762,
+      "a": 0.670807,
+      "b": 3.138014,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p97403149": {
-      "a": 3.362224,
-      "b": 0.44021,
+      "a": 3.588352,
+      "b": 0.567857,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p97407846": {
-      "a": 1.22793,
-      "b": -3.763836,
+      "a": 0.850004,
+      "b": -2.837102,
       "subcategory": "LN-EP",
       "prompt_set": "public"
     },
     "p97608111": {
-      "a": 1.376968,
-      "b": 3.210252,
+      "a": 1.837106,
+      "b": 2.497603,
       "subcategory": "LR-DD",
       "prompt_set": "public"
     },
     "p97608397": {
-      "a": 1.479889,
-      "b": -1.445682,
+      "a": 1.107738,
+      "b": -0.854769,
       "subcategory": "CT-BD",
       "prompt_set": "public"
     },
     "p97745408": {
-      "a": 1.081332,
-      "b": 1.188334,
+      "a": 1.331179,
+      "b": 0.929915,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p97956444": {
-      "a": 1.093552,
-      "b": -4.54968,
+      "a": 0.966409,
+      "b": -3.003169,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p97964557": {
-      "a": 0.609756,
-      "b": -2.661349,
+      "a": 0.643622,
+      "b": -1.426589,
       "subcategory": "PR-EX",
       "prompt_set": "public"
     },
     "p97979406": {
-      "a": 1.515748,
-      "b": -3.245219,
+      "a": 1.466126,
+      "b": -1.7317,
       "subcategory": "SI-TR",
       "prompt_set": "public"
     },
     "p98026540": {
-      "a": 1.125721,
-      "b": 0.433365,
+      "a": 0.913711,
+      "b": 0.929125,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p98260621": {
-      "a": 0.605406,
-      "b": -1.395598,
+      "a": 0.667545,
+      "b": -1.13264,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p98270676": {
-      "a": 0.553701,
-      "b": -0.639672,
+      "a": 0.591823,
+      "b": -0.0121,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p98485779": {
-      "a": 1.587292,
-      "b": -0.444477,
+      "a": 1.159129,
+      "b": 0.024038,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p98601199": {
-      "a": 0.77657,
-      "b": -1.767435,
+      "a": 0.855153,
+      "b": -0.776211,
       "subcategory": "CT-CO",
       "prompt_set": "public"
     },
     "p98713847": {
-      "a": 0.633778,
-      "b": -2.334212,
+      "a": 0.670537,
+      "b": -1.719294,
       "subcategory": "CT-AV",
       "prompt_set": "public"
     },
     "p98824227": {
-      "a": 2.400681,
-      "b": 0.279351,
+      "a": 1.433162,
+      "b": -0.707273,
       "subcategory": "LN-IT",
       "prompt_set": "public"
     },
     "p98918981": {
-      "a": 1.677955,
-      "b": -1.376634,
+      "a": 1.791491,
+      "b": -1.011183,
       "subcategory": "QR-CL",
       "prompt_set": "public"
     },
     "p98992391": {
-      "a": 0.456832,
-      "b": 13.629227,
+      "a": 0.495807,
+      "b": 12.568376,
       "subcategory": "WK-DM",
       "prompt_set": "public"
     },
     "p99137504": {
-      "a": 1.053642,
-      "b": -1.51553,
+      "a": 0.922721,
+      "b": -0.775009,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p99225351": {
-      "a": 0.5308,
-      "b": -1.475444,
+      "a": 0.598769,
+      "b": -0.61564,
       "subcategory": "PR-PL",
       "prompt_set": "public"
     },
     "p99373782": {
-      "a": 0.527057,
-      "b": 11.647757,
+      "a": 0.643159,
+      "b": 8.630717,
       "subcategory": "QR-DA",
       "prompt_set": "public"
     },
     "p99471076": {
-      "a": 0.808439,
-      "b": 0.12972,
+      "a": 0.805346,
+      "b": 0.103503,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p99729680": {
-      "a": 1.169948,
-      "b": 0.31562,
+      "a": 1.215891,
+      "b": 0.582175,
       "subcategory": "LR-IF",
       "prompt_set": "public"
     },
     "p99873268": {
-      "a": 1.674816,
-      "b": -1.323396,
+      "a": 1.41005,
+      "b": -1.01987,
       "subcategory": "WK-GK",
       "prompt_set": "public"
     },
     "p99904087": {
-      "a": 1.675074,
-      "b": -0.153187,
+      "a": 1.680148,
+      "b": 0.496582,
       "subcategory": "QR-WP",
       "prompt_set": "public"
     },
     "p99983319": {
-      "a": 0.902914,
-      "b": -1.868816,
+      "a": 0.763619,
+      "b": -1.557755,
       "subcategory": "CT-FT",
       "prompt_set": "public"
+    }
+  },
+  "permitted_judges": {
+    "gemini-3-flash-preview": {
+      "display_name": "Gemini 3 Flash Preview",
+      "default_model": "google/gemini-3-flash-preview",
+      "gamma": 0.559612
+    },
+    "gemma-4-31b-it": {
+      "display_name": "Gemma 4 31B IT",
+      "default_model": "vllm/google/gemma-4-31b-it",
+      "gamma": 0.484587
+    },
+    "gpt-5.4-mini": {
+      "display_name": "GPT-5.4 Mini",
+      "default_model": "openai/gpt-5.4-mini",
+      "gamma": -0.207799
+    },
+    "gemini-3-5-flash": {
+      "display_name": "Gemini 3.5 Flash",
+      "default_model": "google/gemini-3-5-flash",
+      "gamma": -0.295692
+    },
+    "claude-4.5-haiku": {
+      "display_name": "Claude 4.5 Haiku",
+      "default_model": "anthropic/claude-4.5-haiku",
+      "gamma": -0.540708
     }
   }
 }

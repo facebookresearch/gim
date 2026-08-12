@@ -10,21 +10,22 @@ import math
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from pydantic import ValidationError
-
-from inspect_ai.model import ChatMessageAssistant, ChatMessageUser
-from inspect_ai.scorer import CORRECT, INCORRECT, Score, Target, mean_score
-from inspect_ai.solver import TaskState
-
 from gim.scorers import (
-    ExactAnswerJudgment,
-    RubricJudgment,
-    EXACT_ANSWER_PROMPT,
-    RUBRIC_GRADER_PROMPT,
     _score_exact_answer,
     _score_rubrics,
+    EXACT_ANSWER_PROMPT,
+    ExactAnswerJudgment,
     gim_scorer,
+    RUBRIC_GRADER_PROMPT,
+    RubricJudgment,
 )
+from inspect_ai.model import ChatMessageAssistant, ChatMessageUser
+from inspect_ai.scorer import CORRECT, INCORRECT, mean_score, Score, Target
+from inspect_ai.solver import TaskState
+from pydantic import ValidationError
+
+# A calibrated judge ID, required by the judge-aware IRT item bank.
+_TEST_JUDGE_ID = "gemini-3-flash-preview"
 
 
 # ---------------------------------------------------------------------------
@@ -34,17 +35,23 @@ from gim.scorers import (
 
 class TestExactAnswerJudgment:
     def test_valid_correct(self):
-        j = ExactAnswerJudgment(explanation="Matches exactly", grade="CORRECT", confidence=0.9)
+        j = ExactAnswerJudgment(
+            explanation="Matches exactly", grade="CORRECT", confidence=0.9
+        )
         assert j.grade == "CORRECT"
         assert j.confidence == 0.9
 
     def test_valid_incorrect(self):
-        j = ExactAnswerJudgment(explanation="Does not match", grade="INCORRECT", confidence=0.8)
+        j = ExactAnswerJudgment(
+            explanation="Does not match", grade="INCORRECT", confidence=0.8
+        )
         assert j.grade == "INCORRECT"
 
     def test_unknown_grade_rejected(self):
         with pytest.raises(ValidationError):
-            ExactAnswerJudgment(explanation="Ambiguous", grade="UNKNOWN", confidence=0.5)
+            ExactAnswerJudgment(
+                explanation="Ambiguous", grade="UNKNOWN", confidence=0.5
+            )
 
     def test_invalid_grade(self):
         with pytest.raises(ValidationError):
@@ -182,7 +189,9 @@ def _mock_rubric_judge(response_json: str):
 
 def _mock_rubric_judge_side_effect(side_effect):
     """Patch _call_rubric_judge with a side_effect list."""
-    return patch("gim.scorers._call_rubric_judge", new=AsyncMock(side_effect=side_effect))
+    return patch(
+        "gim.scorers._call_rubric_judge", new=AsyncMock(side_effect=side_effect)
+    )
 
 
 def _mock_exact_judge_raises(exc):
@@ -190,7 +199,7 @@ def _mock_exact_judge_raises(exc):
     return patch("gim.scorers._call_exact_judge", new=AsyncMock(side_effect=exc))
 
 
-def _mock_model(grader_model_value=None):
+def _mock_model():
     """Patch get_model."""
     return patch("gim.scorers.get_model", return_value=MagicMock())
 
@@ -346,8 +355,12 @@ class TestScoreRubrics:
             metadata={"rubrics": ["R1", "R2"], "answer": "gold"},
         )
         target = Target(["gold"])
-        r1 = RubricJudgment(explanation="Perfect", score=1.0, confidence=1.0).model_dump_json()
-        r2 = RubricJudgment(explanation="Partial", score=0.5, confidence=0.8).model_dump_json()
+        r1 = RubricJudgment(
+            explanation="Perfect", score=1.0, confidence=1.0
+        ).model_dump_json()
+        r2 = RubricJudgment(
+            explanation="Partial", score=0.5, confidence=0.8
+        ).model_dump_json()
         judgments = [
             RubricJudgment.model_validate_json(r1),
             RubricJudgment.model_validate_json(r2),
@@ -387,7 +400,8 @@ class TestScoreRubrics:
         target = Target(["gold"])
 
         with patch(
-            "gim.scorers._call_rubric_judge", new=AsyncMock(side_effect=RuntimeError("fail"))
+            "gim.scorers._call_rubric_judge",
+            new=AsyncMock(side_effect=RuntimeError("fail")),
         ), _mock_model():
             score = await _score_rubrics(state, target, "mock-model")
 
@@ -445,7 +459,7 @@ class TestGenerationErrorHandling:
         state = _make_task_state("Q?", completion)
         target = Target(["gold"])
 
-        scorer_fn = gim_scorer()
+        scorer_fn = gim_scorer(judge_id=_TEST_JUDGE_ID)
         score = await scorer_fn(state, target)
 
         assert math.isnan(score.as_float())
@@ -458,7 +472,7 @@ class TestGenerationErrorHandling:
         mock_judge = AsyncMock()
 
         with patch("gim.scorers._call_rubric_judge", new=mock_judge):
-            scorer_fn = gim_scorer()
+            scorer_fn = gim_scorer(judge_id=_TEST_JUDGE_ID)
             await scorer_fn(state, target)
 
         mock_judge.assert_not_called()
@@ -466,7 +480,7 @@ class TestGenerationErrorHandling:
     async def test_empty_completion_excluded_from_repeat_mean(self):
         """NaN repeats are skipped; treating missing as zero would yield 0.3."""
         state = _make_task_state("Q?", "")
-        missing = await gim_scorer()(state, Target(["gold"]))
+        missing = await gim_scorer(judge_id=_TEST_JUDGE_ID)(state, Target(["gold"]))
 
         reduced = mean_score()([missing, Score(value=0.6)])
 
@@ -475,7 +489,7 @@ class TestGenerationErrorHandling:
     async def test_all_empty_completions_remain_missing_after_repeat_mean(self):
         """A sample with no successful repeats remains missing."""
         state = _make_task_state("Q?", "")
-        missing = await gim_scorer()(state, Target(["gold"]))
+        missing = await gim_scorer(judge_id=_TEST_JUDGE_ID)(state, Target(["gold"]))
 
         reduced = mean_score()([missing, missing])
 
@@ -490,7 +504,7 @@ class TestGenerationErrorHandling:
         ).model_dump_json()
 
         with _mock_exact_judge(response), _mock_model():
-            scorer_fn = gim_scorer()
+            scorer_fn = gim_scorer(judge_id=_TEST_JUDGE_ID)
             score = await scorer_fn(state, target)
 
         assert score.value == 1.0
