@@ -7,12 +7,16 @@
 """Tests for gim.metrics — raw_mean, gim_per_label, and gim_per_modality."""
 
 import pytest
-
-from inspect_ai import Task, eval as inspect_eval
+from gim.metrics import (
+    DEFAULT_MIN_SAMPLES,
+    gim_per_label,
+    gim_per_modality,
+    gim_score,
+    raw_mean,
+)
+from inspect_ai import eval as inspect_eval, Task
 from inspect_ai.dataset import Sample
 from inspect_ai.scorer import Score, scorer
-
-from gim.metrics import raw_mean, gim_per_label, gim_per_modality, DEFAULT_MIN_SAMPLES
 from tests.conftest import make_sample_score
 
 
@@ -236,3 +240,63 @@ class TestGimPerModality:
         assert "modality/text+document" in result
         # but not attachment
         assert "modality/attachment" not in result
+
+
+class TestGimScore:
+    """Tests for the judge-aware gim_score metric."""
+
+    def test_requires_judge_metadata(self):
+        compute = gim_score()
+        with pytest.raises(ValueError, match="requires judge_id"):
+            compute([make_sample_score(0.5, sample_id="p00079911")])
+
+    def test_rejects_unknown_judge_ids(self):
+        compute = gim_score()
+        with pytest.raises(ValueError, match="Unknown judge_id"):
+            compute(
+                [
+                    make_sample_score(
+                        0.5,
+                        sample_id="p00079911",
+                        score_metadata={"judge_id": "some-uncalibrated-judge"},
+                    )
+                ]
+            )
+
+    def test_accepts_mixed_judges(self):
+        compute = gim_score()
+        scores = [
+            make_sample_score(
+                0.5,
+                sample_id="p00079911",
+                score_metadata={"judge_id": "gemini-3-flash-preview"},
+            ),
+            make_sample_score(
+                0.5,
+                sample_id="p00217491",
+                score_metadata={"judge_id": "gemma-4-31b-it"},
+            ),
+        ]
+        result = compute(scores)
+
+        assert result["gim_score_n_items"] == 2
+        assert result["gim_score_coverage"] > 0
+        assert "gim_score" in result
+
+    def test_uses_judge_adjusted_irt_score(self):
+        scores = [
+            make_sample_score(
+                0.5,
+                sample_id="p00079911",
+                score_metadata={"judge_id": "gemini-3-flash-preview"},
+            ),
+            make_sample_score(
+                0.5,
+                sample_id="p00217491",
+                score_metadata={"judge_id": "gemini-3-flash-preview"},
+            ),
+        ]
+        result = gim_score()(scores)
+
+        assert result["gim_score_n_items"] == 2
+        assert result["gim_score_coverage"] > 0

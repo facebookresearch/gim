@@ -61,10 +61,11 @@ def make_sample_score(
     labels: list[str] | None = None,
     sample_id: str = "test",
     modality: str = "text",
+    score_metadata: dict | None = None,
 ) -> SampleScore:
     """Helper to create SampleScore objects for metric tests."""
     return SampleScore(
-        score=Score(value=value),
+        score=Score(value=value, metadata=score_metadata),
         sample_id=sample_id,
         sample_metadata={"labels": labels or [], "modality": modality},
     )

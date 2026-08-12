@@ -42,6 +42,7 @@ from inspect_ai.solver import TaskState
 from inspect_ai.util._json import cls_json_schema
 from pydantic import BaseModel, Field
 
+from .judges import judge_metadata, resolve_judge
 from .metrics import gim_per_modality, gim_score, raw_mean
 from .modality import modality_supersets
 
@@ -268,7 +269,8 @@ def _generation_failure_metadata(state: TaskState) -> dict[str, Any]:
 async def _score_exact_answer(
     state: TaskState,
     target: Target,
-    grader_model: str | None,
+    judge_model: str | None,
+    judge_meta: dict[str, str] | None = None,
 ) -> Score:
     """Score a sample by comparing model output to the golden answer."""
     answer = target.text
@@ -280,6 +282,7 @@ async def _score_exact_answer(
             metadata={
                 "judge_type": "exact_answer",
                 "skipped": True,
+                **(judge_meta or {}),
                 **_diagnostic_metadata(state, "exact_answer", 0.0),
             },
         )
@@ -290,7 +293,7 @@ async def _score_exact_answer(
         answer=answer,
     )
 
-    model = get_model(grader_model)
+    model = get_model(judge_model)
     try:
         judgment = await _call_exact_judge(model, prompt)
     except Exception as exc:
@@ -303,6 +306,7 @@ async def _score_exact_answer(
                 "judge_type": "exact_answer",
                 "parse_error": True,
                 "confidence": 0.0,
+                **(judge_meta or {}),
                 **_diagnostic_metadata(state, "exact_answer", 0.0),
             },
         )
@@ -318,6 +322,7 @@ async def _score_exact_answer(
             "judge_type": "exact_answer",
             "grade": judgment.grade,
             "confidence": judgment.confidence,
+            **(judge_meta or {}),
             **_diagnostic_metadata(state, "exact_answer", value),
         },
     )
@@ -331,7 +336,8 @@ async def _score_exact_answer(
 async def _score_rubrics(
     state: TaskState,
     target: Target,
-    grader_model: str | None,
+    judge_model: str | None,
+    judge_meta: dict[str, str] | None = None,
 ) -> Score:
     """Score a sample by evaluating each rubric item independently."""
     rubrics: list[str] = state.metadata.get("rubrics", [])
@@ -343,13 +349,14 @@ async def _score_rubrics(
             metadata={
                 "judge_type": "rubrics",
                 "skipped": True,
+                **(judge_meta or {}),
                 **_diagnostic_metadata(state, "rubrics", 0.0),
             },
         )
 
     answer = state.metadata.get("answer", target.text or "")
     model_response = state.output.completion
-    model = get_model(grader_model)
+    model = get_model(judge_model)
 
     async def _grade_one_rubric(rubric: str) -> dict[str, Any]:
         prompt = RUBRIC_GRADER_PROMPT.format(
@@ -400,6 +407,7 @@ async def _score_rubrics(
             "judge_type": "rubrics",
             "rubric_grades": rubric_grades,
             "average_confidence": avg_confidence,
+            **(judge_meta or {}),
             **_diagnostic_metadata(state, "rubrics", aggregate_score),
         },
     )
@@ -411,7 +419,10 @@ async def _score_rubrics(
 
 
 @scorer(metrics=[gim_score(), raw_mean(), gim_per_modality(), stderr()])
-def gim_scorer(grader_model: str | None = None) -> Scorer:
+def gim_scorer(
+    judge_id: str | None = None,
+    judge_model: str | None = None,
+) -> Scorer:
     """GIM composite scorer.
 
     Routes each sample to the appropriate judging strategy:
@@ -421,21 +432,31 @@ def gim_scorer(grader_model: str | None = None) -> Scorer:
     - Otherwise, uses exact-answer scoring against the golden answer.
 
     Args:
-        grader_model: Model to use for LLM-as-judge grading. If None,
-            uses the model being evaluated.
+        judge_id: Canonical calibrated judge ID used for official IRT scoring.
+            Inferred from ``judge_model`` when it matches a calibrated route.
+        judge_model: Provider/model route used to call the judge.
     """
+    judge_spec, resolved_judge_model = resolve_judge(judge_id, judge_model)
+    resolved_judge_meta = judge_metadata(judge_spec, resolved_judge_model)
 
     async def score(state: TaskState, target: Target) -> Score:
         if not state.output.completion.strip():
             return Score(
                 value=float("nan"),
                 explanation="Generation produced no output — treated as missing.",
-                metadata=_generation_failure_metadata(state),
+                metadata={
+                    **resolved_judge_meta,
+                    **_generation_failure_metadata(state),
+                },
             )
         rubrics = state.metadata.get("rubrics", [])
         if rubrics:
-            return await _score_rubrics(state, target, grader_model)
+            return await _score_rubrics(
+                state, target, resolved_judge_model, resolved_judge_meta
+            )
         else:
-            return await _score_exact_answer(state, target, grader_model)
+            return await _score_exact_answer(
+                state, target, resolved_judge_model, resolved_judge_meta
+            )
 
     return score
